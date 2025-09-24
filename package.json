@@ -1,6 +1,6 @@
 {
   "name": "@zapdos-labs/watchtower",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "NVR for your cameras with AI capabilities",
   "type": "module",
   "bin": {
