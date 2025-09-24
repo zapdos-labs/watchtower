@@ -1,23 +1,50 @@
 import { Box, Newline, render, Text } from "ink";
 import React, { useEffect, useState } from "react";
 import { forwardStream } from "../utils/startForward";
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import { DEFS } from "../../definitions";
 
 export default function MediaServer() {
-    const [output, setOutput] = useState('');
+    const [output, setOutput] = useState<string[]>([]);
+    const clients: {
+        [key: string]: {
+            ip: string | undefined,
+            ws: WebSocket
+        }
+    } = {};
 
-    function log(str: string) {
-        setOutput(prev => prev + str + '\n');
+    function log(...args: any[]) {
+        setOutput(prev => {
+            const newLines = args.join(' ').split('\n');
+            const lines = [...prev, ...newLines];
+            return lines.length > 10 ? ['...', ...lines.slice(-9)] : lines;
+        });
     }
 
-    async function initStream() {
+    async function loopStream() {
         const messages = forwardStream('http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4')
+
+        let lastFrameBuffer: ArrayBufferLike | null = null;
+
+        setInterval(() => {
+            if (!lastFrameBuffer) return;
+            try {
+                log('lastFrameBuffer', lastFrameBuffer.byteLength);
+                Object.entries(clients).forEach(([key, client]) => {
+                    if (client.ws.readyState === WebSocket.OPEN) {
+                        client.ws.send(lastFrameBuffer as any);
+                    }
+                });
+            } catch (e) {
+                log('Error sending frame to clients: ' + e);
+            } finally {
+                lastFrameBuffer = null;
+            }
+        }, 1000 / 120); // Attempt to send at 120 FPS
 
         for await (const msg of messages) {
             if (msg.type === 'frame') {
-                // Process the frame buffer (e.g., display it, save it, etc.)
-                // console.log('Received frame of size:', msg.buffer.byteLength);
+                lastFrameBuffer = msg.buffer;
             }
         }
     }
@@ -35,9 +62,13 @@ export default function MediaServer() {
         wss.on('connection', (ws, req) => {
             log('New client connected.');
 
+
             // You can get the client's IP address from the request object
             const ip = req.socket.remoteAddress;
             log(`Client IP: ${ip}`);
+
+            const id = crypto.randomUUID();
+            clients[id] = { ip, ws };
 
             // Send a welcome message to the newly connected client
             ws.send('Welcome to the WebSocket server!');
@@ -65,7 +96,7 @@ export default function MediaServer() {
     }
 
     useEffect(() => {
-        // initStream();
+        loopStream();
         startMediaServer();
     }, []);
 
@@ -77,7 +108,7 @@ export default function MediaServer() {
             paddingX={1}
         >
             <Text color="green"><Text bold>Media Source:</Text> Streaming...</Text>
-            <Text>{output}</Text>
+            <Text color="gray">{output.join('\n')}</Text>
         </Box>
     );
 }
