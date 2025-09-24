@@ -7,9 +7,14 @@ export default function useDevServer() {
     const [output, setOutput] = useState('');
 
     useEffect(() => {
-        // Correctly call spawn without the shell option
+        // Spawn vite with environment variables that preserve colors
         const viteProcess = spawn('npx', ['vite'], {
-            stdio: ['inherit', 'pipe', 'pipe'], // Correctly specify all three stdio streams
+            stdio: ['inherit', 'pipe', 'pipe'],
+            env: {
+                ...process.env,
+                // Force colors to be enabled in the child process
+                FORCE_COLOR: '1'
+            }
         });
 
         setStatus('Running...');
