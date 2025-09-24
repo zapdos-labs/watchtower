@@ -2,50 +2,79 @@ import { Box, Newline, render, Text } from "ink";
 import React, { useEffect, useState } from "react";
 import { forwardStream } from "../utils/startForward";
 import { WebSocketServer, WebSocket } from 'ws';
-import { DEFS } from "../../definitions";
+import { DEFS, VideoWsMessage } from "../../definitions";
+import { logger } from "../utils/logger";
+import { jsonBigIntReplacer } from "../utils/json";
 
 export default function MediaServer() {
     const [output, setOutput] = useState<string[]>([]);
     const clients: {
         [key: string]: {
             ip: string | undefined,
-            ws: WebSocket
+            ws: WebSocket & {
+                send: (data: VideoWsMessage) => boolean;
+            }
         }
     } = {};
 
-    function log(...args: any[]) {
-        setOutput(prev => {
-            const newLines = args.join(' ').split('\n');
-            const lines = [...prev, ...newLines];
-            return lines.length > 10 ? ['...', ...lines.slice(-9)] : lines;
+    const log = logger(setOutput);
+
+    function broadcast(opts: {
+        header: Record<string, any>;
+        buffer?: ArrayBufferLike;
+    }) {
+        let finalMessage: Buffer | string;
+        if (opts.buffer) {
+            const { header, buffer } = opts;
+            const headerString = JSON.stringify(header, jsonBigIntReplacer);
+            const headerBuffer = Buffer.from(headerString, 'utf-8');
+            const headerLength = headerBuffer.length;
+            const lengthBuffer = Buffer.alloc(4);
+            lengthBuffer.writeUInt32BE(headerLength, 0);
+            const imageBuffer = Buffer.from(buffer as ArrayBuffer);
+            finalMessage = Buffer.concat([lengthBuffer, headerBuffer, imageBuffer]);
+        } else {
+            finalMessage = JSON.stringify(opts.header, jsonBigIntReplacer);
+        }
+
+        Object.entries(clients).forEach(([key, client]) => {
+            try {
+                client.ws.send(finalMessage);
+            } catch (e) {
+                log('Error broadcasting to client ' + key + ': ' + e);
+            }
         });
     }
 
     async function loopStream() {
         const messages = forwardStream('http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4')
 
-        let lastFrameBuffer: ArrayBufferLike | null = null;
 
-        setInterval(() => {
-            if (!lastFrameBuffer) return;
-            try {
-                log('lastFrameBuffer', lastFrameBuffer.byteLength);
-                Object.entries(clients).forEach(([key, client]) => {
-                    if (client.ws.readyState === WebSocket.OPEN) {
-                        client.ws.send(lastFrameBuffer as any);
-                    }
-                });
-            } catch (e) {
-                log('Error sending frame to clients: ' + e);
-            } finally {
-                lastFrameBuffer = null;
-            }
-        }, 1000 / 120); // Attempt to send at 120 FPS
 
-        for await (const msg of messages) {
-            if (msg.type === 'frame') {
-                lastFrameBuffer = msg.buffer;
+        try {
+            for await (const msg of messages) {
+                if (msg.type === 'frame') {
+                    broadcast({
+                        header: { type: 'frame', id: 'camera-1' },
+                        buffer: msg.buffer
+                    })
+                }
+
+                if (msg.type === 'codecpar') {
+                    const header = {
+                        type: 'codecpar',
+                        id: 'camera-1',
+                        data: msg.data
+                    };
+
+                    broadcast({
+                        header,
+                    })
+
+                }
             }
+        } catch (e) {
+            log('Error in stream loop: ' + e);
         }
     }
 
@@ -68,10 +97,7 @@ export default function MediaServer() {
             log(`Client IP: ${ip}`);
 
             const id = crypto.randomUUID();
-            clients[id] = { ip, ws };
-
-            // Send a welcome message to the newly connected client
-            ws.send('Welcome to the WebSocket server!');
+            clients[id] = { ip, ws: ws as any };
 
             // This event listener is fired when the server receives a message from a client
             ws.on('message', (message) => {

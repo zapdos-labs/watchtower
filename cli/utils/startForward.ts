@@ -3,13 +3,20 @@ import sharp, { Channels } from "sharp";
 import { AsyncQueue } from "./AsyncQueue";
 
 export async function* forwardStream(inputUrl: string) {
-    const queue = new AsyncQueue<{ type: 'frame'; buffer: ArrayBufferLike }>();
+    const queue = new AsyncQueue<{ type: 'frame'; buffer: ArrayBufferLike } | {
+        type: 'codecpar';
+        data: { width: number; height: number; }
+    }>();
     using input = await MediaInput.open(inputUrl);
     const videoStream = input.video();
 
     if (!videoStream) throw new Error("No video stream found");
     using decoder = await Decoder.create(videoStream);
     const codecpar = videoStream.codecpar.toJSON();
+
+    queue.push({ type: 'codecpar', data: codecpar as any });
+
+
     const scaler = new SoftwareScaleContext();
     scaler.getContext(
         codecpar.width, codecpar.height, codecpar.format,

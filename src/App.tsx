@@ -1,14 +1,47 @@
-import { createSignal, onMount, onCleanup, createEffect, type Component, Show } from 'solid-js';
+import { onCleanup, onMount } from "solid-js";
+import useVideoPlayer from "./components/useVideoPlayer";
+import { VideoWsMessage } from "../definitions";
 
-const App: Component = () => {
-  // Signal to hold the raw blob data from the WebSocket
-  const [imageBlob, setImageBlob] = createSignal<Blob>();
-  // Signal to hold the temporary URL for the <img> tag
-  const [imageUrl, setImageUrl] = createSignal<string>();
+export default function App() {
+  const videoPlayer = useVideoPlayer();
+
+  function parseBinaryMessage(buffer: ArrayBuffer) {
+    // Use a DataView to safely read numbers from the buffer
+    const view = new DataView(buffer);
+
+    // 1. Read the header length from the first 4 bytes (at offset 0)
+    // The 'false' argument specifies Big-Endian, matching our server.
+    const headerLength = view.getUint32(0, false);
+
+    // 2. Define the byte offsets for the different parts
+    const headerStart = 4; // Header starts after the 4-byte length prefix
+    const imageStart = headerStart + headerLength;
+
+    // 3. Decode the header string (from bytes to a string)
+    // Use TextDecoder for proper UTF-8 handling.
+    const headerSlice = buffer.slice(headerStart, imageStart);
+    const headerString = new TextDecoder().decode(headerSlice);
+    const header = JSON.parse(headerString);
+
+    // 4. Extract the image data
+    // The image is the rest of the buffer after the header.
+    const imageBuffer = buffer.slice(imageStart);
+
+    // --- You now have both the header and the buffer, correctly parsed ---
+    console.log('Received Header:', header);
+    // console.log(`Received Image for stream ${header.id} with size ${imageBuffer.byteLength}`);
+
+    return { header, imageBuffer };
+  }
+
 
   onMount(() => {
     // Connect to websocket server
     const socket = new WebSocket('/ws');
+
+    // IMPORTANT: Set the binaryType to 'arraybuffer'
+    // This tells the WebSocket to provide the data as an ArrayBuffer, not a Blob.
+    socket.binaryType = 'arraybuffer';
 
     onCleanup(() => {
       console.log('Closing WebSocket connection.');
@@ -20,8 +53,23 @@ const App: Component = () => {
     });
 
     socket.addEventListener('message', (event) => {
-      const blob = new Blob([event.data]);
-      setImageBlob(blob);
+      // We only expect ArrayBuffer messages now
+      if (event.data instanceof ArrayBuffer) {
+        const { header, imageBuffer } = parseBinaryMessage(event.data);
+        videoPlayer.setImageBuffer(imageBuffer);
+      } else {
+        try {
+          const json: VideoWsMessage = JSON.parse(event.data);
+          if (json.type === 'codecpar') {
+            videoPlayer.setCodecpar(json.data);
+          }
+        } catch (e) {
+          console.error('Received non-binary message that is not valid JSON:', event.data);
+          return;
+        }
+      }
+
+
     });
 
     socket.addEventListener('close', () => {
@@ -31,31 +79,7 @@ const App: Component = () => {
     socket.addEventListener('error', (error) => {
       console.error('WebSocket error: ', error);
     });
-
   });
 
-  // IMPORTANT: Use an effect to manage the lifecycle of the object URL
-  createEffect(() => {
-    const blob = imageBlob();
-    if (blob) {
-      const url = URL.createObjectURL(blob);
-      setImageUrl(url);
-
-      // This cleanup function runs when the effect re-runs or the component is unmounted
-      onCleanup(() => {
-        URL.revokeObjectURL(url);
-      });
-    }
-  });
-
-  return (
-    <div>
-      {/* Display a message while waiting for the image */}
-      <Show when={imageUrl()}>
-        <img src={imageUrl()} alt="WebSocket Image" />
-      </Show>
-    </div>
-  );
-};
-
-export default App;
+  return videoPlayer.component();
+}

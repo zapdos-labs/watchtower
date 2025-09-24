@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { render, Text, Box, Newline } from 'ink';
 import { spawn } from 'child_process';
+import { logger } from './utils/logger';
 
 export default function useDevServer() {
     const [status, setStatus] = useState('Starting...');
-    const [output, setOutput] = useState('');
+    const [output, setOutput] = useState<string[]>([]);
+
+    const log = logger(setOutput);
 
     useEffect(() => {
         // Spawn vite with environment variables that preserve colors
@@ -20,11 +23,11 @@ export default function useDevServer() {
         setStatus('Running...');
 
         viteProcess.stdout.on('data', (data) => {
-            setOutput(prevOutput => prevOutput + data.toString());
+            log(data.toString());
         });
 
         viteProcess.stderr.on('data', (data) => {
-            setOutput(prevOutput => prevOutput + data.toString());
+            log(data.toString());
             setStatus('Error!');
         });
 
@@ -37,6 +40,6 @@ export default function useDevServer() {
 
     return {
         status,
-        output
+        output: output.join('\n')
     }
 }

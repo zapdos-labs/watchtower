@@ -6,10 +6,12 @@ import { fileURLToPath } from 'url';
 import mime from 'mime-types';
 import httpProxy from 'http-proxy';
 import { DEFS } from '../definitions';
+import { logger } from './utils/logger';
 
 export default function useProdServer() {
     const [status, setStatus] = useState('Initializing...');
-    const [output, setOutput] = useState('');
+    const [output, setOutput] = useState<string[]>([]);
+    const log = logger(setOutput);
 
     useEffect(() => {
         const __filename = fileURLToPath(import.meta.url);
@@ -18,7 +20,7 @@ export default function useProdServer() {
 
         if (!fs.existsSync(distPath)) {
             setStatus('Error');
-            setOutput(`Build directory not found. Please run 'bun run build' first.
+            log(`Build directory not found. Please run 'bun run build' first.
 Expected path: ${distPath}`);
             return;
         }
@@ -78,7 +80,7 @@ Expected path: ${distPath}`);
         server.listen(DEFS.port, () => {
             const url = `http://localhost:${DEFS.port}`;
             setStatus('Running in Production');
-            setOutput(`Static server is live at ${url}
+            log(`Static server is live at ${url}
 Serving files from: ${distPath}
 WebSocket proxy active at ${url}/ws`);
         });
@@ -91,6 +93,6 @@ WebSocket proxy active at ${url}/ws`);
 
     return {
         status,
-        output,
+        output: output.join('\n'),
     };
 }
