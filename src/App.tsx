@@ -28,7 +28,7 @@ export default function App() {
     const imageBuffer = buffer.slice(imageStart);
 
     // --- You now have both the header and the buffer, correctly parsed ---
-    console.log('Received Header:', header);
+    // console.log('Received Header:', header);
     // console.log(`Received Image for stream ${header.id} with size ${imageBuffer.byteLength}`);
 
     return { header, imageBuffer };
@@ -60,6 +60,7 @@ export default function App() {
       } else {
         try {
           const json: VideoWsMessage = JSON.parse(event.data);
+          console.log('Received JSON message:', json);
           if (json.type === 'codecpar') {
             videoPlayer.setCodecpar(json.data);
           }

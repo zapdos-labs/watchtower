@@ -6,22 +6,27 @@ import { DEFS, VideoWsMessage } from "../../definitions";
 import { logger } from "../utils/logger";
 import { jsonBigIntReplacer } from "../utils/json";
 
+type WsClient = {
+    id: string;
+    ip: string | undefined;
+    ws: WebSocket & {
+        send: (data: VideoWsMessage) => boolean;
+    }
+}
+
 export default function MediaServer() {
     const [output, setOutput] = useState<string[]>([]);
-    const clients: {
-        [key: string]: {
-            ip: string | undefined,
-            ws: WebSocket & {
-                send: (data: VideoWsMessage) => boolean;
-            }
-        }
+    let clients: {
+        [key: string]: WsClient
     } = {};
 
     const log = logger(setOutput);
 
+
     function broadcast(opts: {
         header: Record<string, any>;
         buffer?: ArrayBufferLike;
+        clients: WsClient[]
     }) {
         let finalMessage: Buffer | string;
         if (opts.buffer) {
@@ -37,40 +42,50 @@ export default function MediaServer() {
             finalMessage = JSON.stringify(opts.header, jsonBigIntReplacer);
         }
 
-        Object.entries(clients).forEach(([key, client]) => {
+        opts.clients.forEach((client) => {
             try {
                 client.ws.send(finalMessage);
             } catch (e) {
-                log('Error broadcasting to client ' + key + ': ' + e);
+                log('Error broadcasting to client: ' + e);
+                clients = Object.fromEntries(Object.entries(clients).filter(([, c]) => c.id !== client.id)); // Remove client on error
             }
         });
     }
 
-    async function loopStream() {
-        const messages = forwardStream('http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4')
 
+    const streams: {
+        [key: string]: {
+            codecpar?: { width: number; height: number; }
+        }
+    } = {}
 
+    async function loopStream(id: string, url: string) {
+        const messages = forwardStream(url)
 
         try {
             for await (const msg of messages) {
                 if (msg.type === 'frame') {
                     broadcast({
-                        header: { type: 'frame', id: 'camera-1' },
-                        buffer: msg.buffer
+                        header: { type: 'frame', id },
+                        buffer: msg.buffer,
+                        clients: Object.values(clients),
                     })
                 }
 
                 if (msg.type === 'codecpar') {
                     const header = {
                         type: 'codecpar',
-                        id: 'camera-1',
+                        id,
                         data: msg.data
                     };
 
+                    if (!streams[id]) streams[id] = {};
+                    streams[id].codecpar = msg.data;
+
                     broadcast({
                         header,
+                        clients: Object.values(clients),
                     })
-
                 }
             }
         } catch (e) {
@@ -91,13 +106,33 @@ export default function MediaServer() {
         wss.on('connection', (ws, req) => {
             log('New client connected.');
 
-
             // You can get the client's IP address from the request object
             const ip = req.socket.remoteAddress;
             log(`Client IP: ${ip}`);
 
             const id = crypto.randomUUID();
-            clients[id] = { ip, ws: ws as any };
+
+            clients[id] = {
+                id,
+                ip, ws: ws as any
+            };
+
+            Object.entries(streams).forEach(([streamId, state]) => {
+                if (!state.codecpar) return;
+                try {
+                    broadcast({
+                        header: {
+                            type: 'codecpar',
+                            id: streamId,
+                            data: state.codecpar
+                        },
+                        clients: [clients[id]],
+                    });
+                }
+                catch (e) {
+                    log('Error sending codecpar to new client: ' + e);
+                }
+            });
 
             // This event listener is fired when the server receives a message from a client
             ws.on('message', (message) => {
@@ -122,7 +157,7 @@ export default function MediaServer() {
     }
 
     useEffect(() => {
-        loopStream();
+        loopStream('camera-1', 'http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4');
         startMediaServer();
     }, []);
 

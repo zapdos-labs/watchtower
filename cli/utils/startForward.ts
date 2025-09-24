@@ -16,7 +16,6 @@ export async function* forwardStream(inputUrl: string) {
 
     queue.push({ type: 'codecpar', data: codecpar as any });
 
-
     const scaler = new SoftwareScaleContext();
     scaler.getContext(
         codecpar.width, codecpar.height, codecpar.format,

@@ -4,6 +4,7 @@ import { createSignal, createEffect, onCleanup } from 'solid-js';
 
 export default function useVideoPlayer() {
     const [imageBuffer, setImageBuffer] = createSignal<ArrayBuffer>();
+    const [canvasRef, setCanvasRef] = createSignal<HTMLCanvasElement>();
     const [codecpar, setCodecpar] = createSignal<{
         width: number;
         height: number;
@@ -11,20 +12,21 @@ export default function useVideoPlayer() {
         width: 640,
         height: 480
     });
-    let canvasRef: HTMLCanvasElement | undefined;
+
 
     createEffect(() => {
+        const canvas = canvasRef();
         const c = codecpar();
-        if (canvasRef) {
-            canvasRef.width = c.width;
-            canvasRef.height = c.height;
-        }
+        if (!canvas) return;
+        canvas.width = c.width;
+        canvas.height = c.height;
     })
 
     createEffect(async () => {
         const buffer = imageBuffer();
-        if (buffer && canvasRef) {
-            const ctx = canvasRef.getContext('2d');
+        const canvas = canvasRef();
+        if (buffer && canvas) {
+            const ctx = canvas.getContext('2d');
             if (!ctx) return;
 
             // 1. Create a Blob from the ArrayBuffer, specifying it's a JPEG
@@ -46,7 +48,7 @@ export default function useVideoPlayer() {
             return (
                 <div class="flex flex-1">
                     <div class="overflow-hidden border border-zinc-600 bg-black drop-shadow-lg">
-                        <canvas ref={canvasRef} width={codecpar().width} height={codecpar().height} />
+                        <canvas ref={setCanvasRef} width={codecpar().width} height={codecpar().height} />
                     </div>
                 </div>
             )

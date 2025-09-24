@@ -39,7 +39,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",
     "@types/http-proxy": "^1.17.16",
-    "@types/node": "^20.14.2",
+    "@types/node": "^24.5.2",
     "@types/react": "^18.3.3",
     "bun-types": "latest",
     "react-devtools-core": "^6.1.5",
