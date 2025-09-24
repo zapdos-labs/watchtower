@@ -24,6 +24,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@solid-primitives/resize-observer": "^2.1.3",
     "@types/bun": "^1.2.22",
     "@types/mime-types": "^3.0.1",
     "@types/ws": "^8.18.1",

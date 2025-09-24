@@ -82,5 +82,24 @@ export default function App() {
     });
   });
 
-  return videoPlayer.component();
+  return <div class="h-screen flex flex-col">
+
+
+    <div class="flex items-start flex-1 gap-2">
+
+      <div class="w-60 flex-none h-full bg-zinc-900">
+        Sidebar
+      </div>
+
+      <div class="flex-1 flex flex-col h-full">
+        <div class="flex-none h-12 bg-red-500">
+          search / live
+        </div>
+        <videoPlayer.component />
+      </div>
+    </div>
+    <div class="h-50 border-t border-zinc-800 ">
+      Events
+    </div>
+  </div>
 }
