@@ -4,7 +4,7 @@ import { forwardStream } from "../utils/startForward";
 import { WebSocketServer } from 'ws';
 import { DEFS } from "../../definitions";
 
-export default function MediaSource() {
+export default function MediaServer() {
     const [output, setOutput] = useState('');
 
     function log(str: string) {

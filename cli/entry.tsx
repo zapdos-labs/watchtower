@@ -1,8 +1,8 @@
-import { Box, Newline, render, Text } from 'ink';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { Box, render, Text } from 'ink';
 import useDevServer from './useDevServer';
 import useProdServer from './useProdServer';
-import MediaSource from './components/MediaSource';
+import MediaServer from './components/MediaServer';
 
 // The main App component with the new output box
 const App = () => {
@@ -10,7 +10,7 @@ const App = () => {
 
     return (
         <Box flexDirection="column" >
-            <MediaSource />
+            <MediaServer />
             <Box borderStyle="single" borderColor="gray" flexDirection="column" paddingX={1}>
                 <Text color="cyan"><Text bold>Frontend:</Text> {frontend.status}</Text>
                 <Text>{frontend.output}</Text>
