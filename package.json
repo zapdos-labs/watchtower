@@ -1,0 +1,44 @@
+{
+  "name": "@zapdos-labs/watchtower",
+  "version": "0.0.1",
+  "description": "NVR for your cameras with AI capabilities",
+  "type": "module",
+  "bin": {
+    "watchtower": "./cli/dist/entry.js"
+  },
+  "files": [
+    "cli/dist",
+    "dist"
+  ],
+  "scripts": {
+    "dev": "NODE_ENV=dev bun cli/entry.tsx",
+    "start": "bun cli/dist/entry.js",
+    "build": "bun run build:cli && vite build",
+    "build:cli": "bun run ./build.cli.ts",
+    "serve": "vite preview",
+    "cli": "bun cli/entry.tsx",
+    "prepare": "bun run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/bun": "^1.2.22",
+    "ink": "^6.3.1",
+    "react": "^19.1.1",
+    "solid-js": "^1.8.17"
+  },
+  "devDependencies": {
+    "react-devtools-core": "^6.1.5",
+    "@tailwindcss/vite": "^4.1.13",
+    "@types/node": "^20.14.2",
+    "@types/react": "^18.3.3",
+    "bun-types": "latest",
+    "solid-devtools": "^0.29.3",
+    "tailwindcss": "^4.0.0-alpha.13",
+    "typescript": "^5.4.5",
+    "vite": "^7.1.7",
+    "vite-plugin-solid": "^2.10.2"
+  }
+}
