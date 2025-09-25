@@ -3,6 +3,7 @@ import useVideoPlayer from "./components/useVideoPlayer";
 import { VideoWsMessage } from "../definitions";
 import { VsSearch } from "solid-icons/vs";
 import SearchBar from "./components/SearchBar";
+import { BsChevronDown } from "solid-icons/bs";
 
 export default function App() {
   const videoPlayer = useVideoPlayer();
@@ -94,10 +95,12 @@ export default function App() {
       </div>
 
       <div class="flex-1 flex flex-col h-full">
-        <div class="flex-none h-12 relative">
+        <div class="flex-none h-12 relative flex items-center px-2 ">
+          <button class="flex items-center space-x-2 text-zinc-400 hover:text-white">
+            <div class="text-xs  font-semibold">SSA MARINE MIT SW Cam</div>
+            <BsChevronDown class="w-4 h-4" />
+          </button>
           <SearchBar />
-
-
         </div>
         <videoPlayer.component />
       </div>

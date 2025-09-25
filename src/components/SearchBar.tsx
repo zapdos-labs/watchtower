@@ -46,18 +46,18 @@ export default function SearchBar() {
         <div
             ref={setBarRef}
             data-open={isOpen()}
-            class="z-[200] absolute top-2 left-1/2 -translate-x-1/2 w-[24rem] data-[open=true]:top-10 transition-all data-[open=true]:w-[50vw] data-[open=true]:drop-shadow-lg  border border-zinc-800  data-[open=false]:rounded  data-[open=true]:rounded-lg overflow-hidden bg-zinc-900">
+            class="z-[200] absolute top-1 left-1/2 -translate-x-1/2 w-[24rem] data-[open=true]:top-10 transition-all data-[open=true]:w-[50vw] data-[open=true]:drop-shadow-lg  data-[open=true]:border border-zinc-800  data-[open=false]:rounded-full  data-[open=true]:rounded-2xl overflow-hidden bg-zinc-900">
 
             <div
                 data-open={isOpen()}
-                class="relative  h-8 data-[open=true]:text-xl data-[open=true]:h-12   group ">
+                class="relative  h-10 data-[open=true]:text-xl data-[open=true]:h-12   group ">
                 <div
                     data-open={isOpen()}
-                    class="absolute top-1/2 -translate-y-1/2 left-0 h-full flex items-center pl-2 data-[open=true]:pl-4 " >
+                    class="absolute top-1/2 -translate-y-1/2 left-0 h-full flex items-center pl-4 data-[open=true]:pl-4 " >
 
                     <BsSearch
                         data-open={isOpen()}
-                        class="w-4 h-4 data-[open=true]:w-6 data-[open=true]:h-6 text-zinc-500 group-hover:text-white  transition-all duration-100 "
+                        class="w-5 h-5 data-[open=true]:w-6 data-[open=true]:h-6 text-zinc-400 group-hover:text-white  transition-all duration-100 "
                     />
                 </div>
 
@@ -65,7 +65,7 @@ export default function SearchBar() {
                     class="h-full flex items-center justify-center data-[open=true]:justify-end">
                     <input
                         data-open={isOpen()}
-                        class="w-[calc(100%-3rem)] h-full  placeholder:text-zinc-500 px-2 focus:outline-none text-center data-[open=true]:text-left min-w-0 text-white " placeholder="Search" />
+                        class="w-[calc(100%-3rem)] h-full  placeholder:text-zinc-400 px-2 focus:outline-none text-center data-[open=true]:text-left min-w-0 text-white " placeholder="Search" />
                 </div>
             </div>
 
