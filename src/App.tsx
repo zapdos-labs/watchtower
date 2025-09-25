@@ -4,6 +4,7 @@ import { VideoWsMessage } from "../definitions";
 import { EventBar } from "./components/EventBar";
 import SearchBar from "./components/SearchBar";
 import useVideoPlayer from "./components/useVideoPlayer";
+import SideBar from "./components/SideBar";
 
 export default function App() {
   const videoPlayer = useVideoPlayer();
@@ -90,9 +91,7 @@ export default function App() {
 
     <div class="flex items-start flex-1 gap-2">
 
-      <div class="w-60 flex-none h-full bg-zinc-900">
-        Sidebar
-      </div>
+      <SideBar />
 
       <div class="flex-1 flex flex-col h-full">
         <div class="flex-none h-12 relative flex items-center px-2 gap-2">

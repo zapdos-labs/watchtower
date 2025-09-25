@@ -7,7 +7,7 @@ export function notEmpty<TValue>(value: TValue | null | undefined): value is TVa
     return value !== null && value !== undefined;
 }
 
-export function getBsIcon(iconKey: string): IconTypes {
+export function getDynamicIcon(iconKey: string): IconTypes {
     // 1. Construct the key for the icon object.
     // Icon names in the `solid-icons` library are exported in PascalCase, prefixed with "Bs".
     // e.g., "cloud" becomes "BsCloud", "arrowLeft" becomes "BsArrowLeft".

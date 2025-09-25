@@ -1,6 +1,6 @@
 import { BsCloudFill } from "solid-icons/bs";
 import { Accessor, createSignal, For, Show } from "solid-js";
-import { getBsIcon, notEmpty } from "../utils";
+import { getDynamicIcon, notEmpty } from "../utils";
 import { BiSolidCctv } from "solid-icons/bi";
 
 type Range = {
@@ -219,7 +219,7 @@ export function EventRow(props: {
             {/* Events */}
             <div class="absolute h-full w-[calc(100%-16px-32px)] left-[16px] right-[32px] ">
                 <For each={events()}>{(event) => {
-                    const DynamicIcon = getBsIcon(event.icon);
+                    const DynamicIcon = getDynamicIcon(event.icon);
                     const from_position = ((event.from_ms - props.range().from_ms) / (props.range().to_ms - props.range().from_ms)) * 100;
                     const to_position = (((event.to_ms ?? event.from_ms + 60000) - props.range().from_ms) / (props.range().to_ms - props.range().from_ms)) * 100;
                     return <div style={{
