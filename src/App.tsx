@@ -1,6 +1,8 @@
 import { onCleanup, onMount } from "solid-js";
 import useVideoPlayer from "./components/useVideoPlayer";
 import { VideoWsMessage } from "../definitions";
+import { VsSearch } from "solid-icons/vs";
+import SearchBar from "./components/SearchBar";
 
 export default function App() {
   const videoPlayer = useVideoPlayer();
@@ -92,8 +94,10 @@ export default function App() {
       </div>
 
       <div class="flex-1 flex flex-col h-full">
-        <div class="flex-none h-12 bg-red-500">
-          search / live
+        <div class="flex-none h-12 relative">
+          <SearchBar />
+
+
         </div>
         <videoPlayer.component />
       </div>
