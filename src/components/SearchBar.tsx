@@ -11,7 +11,7 @@ function NoResultIcon() {
 }
 
 export default function SearchBar() {
-    const [isOpen, setIsOpen] = createSignal();
+    const [isOpen, setIsOpen] = createSignal(false);
     const [barRef, setBarRef] = createSignal<HTMLDivElement>();
     const [state, setState] = createSignal<{
         type: 'idle' | 'searching' | 'result';

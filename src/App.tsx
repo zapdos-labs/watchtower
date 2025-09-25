@@ -3,7 +3,7 @@ import useVideoPlayer from "./components/useVideoPlayer";
 import { VideoWsMessage } from "../definitions";
 import { VsSearch } from "solid-icons/vs";
 import SearchBar from "./components/SearchBar";
-import { BsChevronDown } from "solid-icons/bs";
+import { BsBellFill, BsChevronDown, BsGear, BsGearFill, BsInfoCircleFill, BsInfoLg } from "solid-icons/bs";
 
 export default function App() {
   const videoPlayer = useVideoPlayer();
@@ -95,12 +95,27 @@ export default function App() {
       </div>
 
       <div class="flex-1 flex flex-col h-full">
-        <div class="flex-none h-12 relative flex items-center px-2 ">
+        <div class="flex-none h-12 relative flex items-center px-2 gap-2">
           <button class="flex items-center space-x-2 text-zinc-400 hover:text-white">
             <div class="text-xs  font-semibold">SSA MARINE MIT SW Cam</div>
             <BsChevronDown class="w-4 h-4" />
           </button>
+          <div class="flex-1" />
           <SearchBar />
+
+
+          <button class="rounded-full p-2  hover:bg-zinc-800 hover:text-white text-zinc-400">
+            <BsBellFill class="w-4 h-4 " />
+          </button>
+
+          <button class="rounded-full p-2  hover:bg-zinc-800 hover:text-white text-zinc-400">
+            <BsGearFill class="w-4 h-4 " />
+          </button>
+
+          <button class="rounded-full p-2  hover:bg-zinc-800 hover:text-white text-zinc-400">
+            <BsInfoCircleFill class="w-4 h-4 " />
+          </button>
+
         </div>
         <videoPlayer.component />
       </div>
