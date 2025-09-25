@@ -60,9 +60,9 @@ export function EventBar() {
     const marks = () => buildMarks(range());
 
 
-    return <div>
+    return <div class="border-t border-neutral-800">
         <div class="ml-20 mr-12 select-none ">
-            <div class="h-10 relative border-b border-zinc-800">
+            <div class="h-10 relative border-b border-neutral-800">
                 <For each={marks()}>{(mark) => {
                     const position = ((mark.at_ms - range().from_ms) / (range().to_ms - range().from_ms)) * 100;
                     return (
@@ -135,9 +135,9 @@ export function EventBar() {
 
 const COLORS: Record<CameraEvent['type'], { border: string; bg: string; text: string; }> = {
     motion: {
-        border: 'border-zinc-600',
-        bg: 'bg-zinc-500/30',
-        text: 'text-zinc-500',
+        border: 'border-neutral-600',
+        bg: 'bg-neutral-500/30',
+        text: 'text-neutral-500',
     },
     threat: {
         border: 'border-yellow-600',
@@ -192,8 +192,8 @@ export function EventRow(props: {
     const marks = () => buildMarks(props.range());
 
     return <div class="flex items-center hover:bg-indigo-500/20">
-        <button class="flex-none bg-zinc-950 w-16 h-12 flex items-center justify-center z-[20] ">
-            <BiSolidCctv class="w-6 h-6 text-zinc-400" />
+        <button class="flex-none bg-neutral-950 w-16 h-12 flex items-center justify-center z-[20] ">
+            <BiSolidCctv class="w-6 h-6 text-neutral-400" />
         </button>
 
         <div class="flex-1 relative h-12 flex items-center">
@@ -208,7 +208,7 @@ export function EventRow(props: {
                             left: `${position}%`,
                         }}>
                             <Show when={!mark.is_minor}>
-                                <div class="h-full w-[1px] bg-zinc-800" />
+                                <div class="h-full w-[1px] bg-neutral-800" />
                             </Show>
                         </div>
                     );

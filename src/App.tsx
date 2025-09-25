@@ -95,7 +95,7 @@ export default function App() {
 
       <div class="flex-1 flex flex-col h-full">
         <div class="flex-none h-12 relative flex items-center px-2 gap-2">
-          <button class="flex items-center space-x-2 text-zinc-400 hover:text-white">
+          <button class="flex items-center space-x-2 text-neutral-400 hover:text-white">
             <div class="text-xs  font-semibold">SSA MARINE MIT SW Cam</div>
             <BsChevronDown class="w-4 h-4" />
           </button>
@@ -103,15 +103,15 @@ export default function App() {
           <SearchBar />
 
 
-          <button class="rounded-full p-2  hover:bg-zinc-800 hover:text-white text-zinc-400">
+          <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
             <BsBellFill class="w-4 h-4 " />
           </button>
 
-          <button class="rounded-full p-2  hover:bg-zinc-800 hover:text-white text-zinc-400">
+          <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
             <BsGearFill class="w-4 h-4 " />
           </button>
 
-          <button class="rounded-full p-2  hover:bg-zinc-800 hover:text-white text-zinc-400">
+          <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
             <BsInfoCircleFill class="w-4 h-4 " />
           </button>
 
