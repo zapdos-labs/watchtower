@@ -2,6 +2,33 @@
 
 @import 'tailwindcss';
 
+@layer base {
+  /* For Webkit-based browsers (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a; /* Dark track background */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #4a4a4a; /* Darker thumb */
+    border-radius: 100vh;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6a6a6a; /* Slightly lighter on hover */
+  }
+
+  /* For Firefox */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: #4a4a4a #1a1a1a;
+  }
+}
+
 body {
   @apply bg-zinc-950 text-white;
   font-family: 'Inter', sans-serif;

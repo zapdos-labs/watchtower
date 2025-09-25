@@ -1,9 +1,9 @@
+import { BsBellFill, BsChevronDown, BsGearFill, BsInfoCircleFill } from "solid-icons/bs";
 import { onCleanup, onMount } from "solid-js";
-import useVideoPlayer from "./components/useVideoPlayer";
 import { VideoWsMessage } from "../definitions";
-import { VsSearch } from "solid-icons/vs";
+import { EventBar } from "./components/EventBar";
 import SearchBar from "./components/SearchBar";
-import { BsBellFill, BsChevronDown, BsGear, BsGearFill, BsInfoCircleFill, BsInfoLg } from "solid-icons/bs";
+import useVideoPlayer from "./components/useVideoPlayer";
 
 export default function App() {
   const videoPlayer = useVideoPlayer();
@@ -120,8 +120,6 @@ export default function App() {
         <videoPlayer.component />
       </div>
     </div>
-    <div class="h-50 border-t border-zinc-800 ">
-      Events
-    </div>
+    <EventBar />
   </div>
 }
