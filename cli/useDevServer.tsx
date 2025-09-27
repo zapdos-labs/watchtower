@@ -1,45 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { render, Text, Box, Newline } from 'ink';
-import { spawn } from 'child_process';
-import { logger } from './utils/logger';
+import React, { useState, useEffect } from "react";
+import { render, Text, Box, Newline } from "ink";
+import { spawn } from "child_process";
+import { logger } from "./utils/logger";
+import { getConfig } from "../config";
 
 export default function useDevServer() {
-    const [status, setStatus] = useState('Starting...');
-    const [output, setOutput] = useState<string[]>([]);
+  const [status, setStatus] = useState("Starting...");
+  const [output, setOutput] = useState<string[]>([]);
 
-    const log = logger(setOutput);
+  const log = logger(setOutput);
 
-    useEffect(() => {
-        // Spawn vite with environment variables that preserve colors
-        const viteProcess = spawn('npx', ['vite'], {
-            stdio: ['inherit', 'pipe', 'pipe'],
-            env: {
-                ...process.env,
-                // Force colors to be enabled in the child process
-                FORCE_COLOR: '1'
-            }
-        });
+  useEffect(() => {
+    const config = getConfig();
+    // Spawn vite with environment variables that preserve colors
+    const viteProcess = spawn("npx", ["vite"], {
+      stdio: ["inherit", "pipe", "pipe"],
+      env: {
+        ...process.env,
+        WT_CONFIG_PATH: config.__path,
+        // Force colors to be enabled in the child process
+        FORCE_COLOR: "1",
+      },
+    });
 
-        setStatus('Running...');
+    setStatus(`Running at :${config.port}`);
 
-        viteProcess.stdout.on('data', (data) => {
-            log(data.toString());
-        });
+    viteProcess.stdout.on("data", (data) => {
+      log(data.toString());
+    });
 
-        viteProcess.stderr.on('data', (data) => {
-            log(data.toString());
-            setStatus('Error!');
-        });
+    viteProcess.stderr.on("data", (data) => {
+      log(data.toString());
+      setStatus("Error!");
+    });
 
-        viteProcess.on('close', (code) => {
-            setStatus(`Exited with code ${code}`);
-        });
+    viteProcess.on("close", (code) => {
+      setStatus(`Exited with code ${code}`);
+    });
 
-        return () => { viteProcess.kill() }
-    }, [])
+    return () => {
+      viteProcess.kill();
+    };
+  }, []);
 
-    return {
-        status,
-        output: output.join('\n')
-    }
+  return {
+    status,
+    output: output.join("\n"),
+  };
 }

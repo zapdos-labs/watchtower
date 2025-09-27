@@ -29,7 +29,7 @@ export default function SideBar() {
 
   const views = {
     "v-0000": {
-      label: "Outbound",
+      label: "Exterior",
       cameras: [
         {
           label: "South West Gate",
@@ -43,7 +43,7 @@ export default function SideBar() {
       ],
     },
     "v-0001": {
-      label: "Inbound",
+      label: "Interior",
       cameras: [
         {
           label: "Lobby",

@@ -27,7 +27,6 @@ export async function* forwardStream(inputUrl: string) {
     const raw = { width: codecpar.width, height: codecpar.height, channels: 3 as Channels };
 
     (async () => {
-        console.log('Starting to forward stream...');
         let frameCount = 0;
         for await (using packet of input.packets(videoStream.index)) {
             // console.log(`Decoding frame ${frameCount}`);

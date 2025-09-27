@@ -1,0 +1,6 @@
+{
+  "port": 3020,
+  "media_server": {
+    "port": 8020
+  }
+}

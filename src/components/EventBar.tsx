@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from "solid-js";
+import { createEffect, createSignal, For, onCleanup, Show } from "solid-js";
 import { buildMarks, TimeRange } from "../utils";
 import { EventRow } from "./EventRow";
 
@@ -7,13 +7,52 @@ export function EventBar() {
     from_ms: 1758792956127,
     to_ms: 1758796573099,
   });
+  const [marksBarRef, setMarksBarRef] = createSignal<HTMLDivElement>();
 
   const marks = () => buildMarks(range());
+
+  createEffect(() => {
+    const marksBar = marksBarRef();
+    if (!marksBar) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+
+      const zoomIntensity = 0.1;
+      const rect = marksBar.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const percentage = mouseX / rect.width;
+
+      const oldRange = range();
+      const timeSpan = oldRange.to_ms - oldRange.from_ms;
+      const timeAtCursor = oldRange.from_ms + timeSpan * percentage;
+
+      const direction = e.deltaY < 0 ? 1 : -1;
+      const newTimeSpan = timeSpan * (1 - direction * zoomIntensity);
+
+      const newFromMs = timeAtCursor - newTimeSpan * percentage;
+      const newToMs = newFromMs + newTimeSpan;
+
+      setRange({
+        from_ms: newFromMs,
+        to_ms: newToMs,
+      });
+    };
+
+    marksBar.addEventListener("wheel", handleWheel);
+
+    onCleanup(() => {
+      marksBar.removeEventListener("wheel", handleWheel);
+    });
+  });
 
   return (
     <div class="border-t border-neutral-800">
       <div class="ml-20 mr-12 select-none ">
-        <div class="h-10 relative border-b border-neutral-800">
+        <div
+          class="h-10 relative border-b border-neutral-800"
+          ref={setMarksBarRef}
+        >
           <For each={marks()}>
             {(mark) => {
               const position =
