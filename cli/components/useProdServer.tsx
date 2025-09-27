@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
-import http from "http";
 import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import mime from "mime-types";
+import http from "http";
 import httpProxy from "http-proxy";
+import mime from "mime-types";
+import path from "path";
+import { useEffect, useState } from "react";
+import { fileURLToPath } from "url";
+import { mediaConfig } from "../../config";
 import { logger } from "../utils/logger";
-import { getConfig } from "../../config";
 
 export default function useProdServer() {
   const [status, setStatus] = useState("Initializing...");
@@ -25,10 +25,9 @@ Expected path: ${distPath}`);
       return;
     }
 
-    const config = getConfig();
     // Create a proxy server for WebSocket connections
     const proxy = httpProxy.createProxyServer({
-      target: `ws://localhost:${config.media_server.port}`,
+      target: `ws://localhost:${mediaConfig.media_server.port}`,
       ws: true,
       changeOrigin: true,
     });
@@ -85,14 +84,14 @@ Expected path: ${distPath}`);
     server.on("upgrade", (req, socket, head) => {
       if (req.url === "/ws") {
         console.log(
-          `Proxying WebSocket connection to ws://localhost:${config.media_server.port}`
+          `Proxying WebSocket connection to ws://localhost:${mediaConfig.media_server.port}`
         );
         proxy.ws(req, socket, head);
       }
     });
 
-    server.listen(config.port, () => {
-      const url = `http://localhost:${config.port}`;
+    server.listen(mediaConfig.port, () => {
+      const url = `http://localhost:${mediaConfig.port}`;
       setStatus("Running in Production");
       log(`Static server is live at ${url}
 Serving files from: ${distPath}

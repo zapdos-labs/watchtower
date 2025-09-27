@@ -1,8 +1,4 @@
 import React from "react";
-
-// By referencing React here, we prevent it from being removed.
-const _ = React.version;
-
 import { Box, render } from "ink";
 import FrontendServer from "./components/FrontendServer";
 import MediaServer from "./components/MediaServer";

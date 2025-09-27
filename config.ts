@@ -9,9 +9,11 @@ type WatchtowerConfig = {
     port: number;
   };
   streams: {
-    uri: string;
-    label: string;
-  }[];
+    [id: string]: {
+      label?: string;
+      uri: string;
+    };
+  };
   __path?: string;
 };
 
@@ -66,9 +68,7 @@ function readConfigFile(configPath: string) {
   }
 }
 
-let cachedConfig: WatchtowerConfig | null = null;
 export function getConfig(opts?: GetConfigOpts) {
-  if (cachedConfig) return cachedConfig;
   const configPath = getConfigPath(opts);
   const config: WatchtowerConfig = configPath ? readConfigFile(configPath) : {};
 
@@ -79,9 +79,17 @@ export function getConfig(opts?: GetConfigOpts) {
     config.media_server.port = parseInt(
       process.env.WT_MEDIA_SERVER_PORT || "8080"
     );
-  if (!config.streams) config.streams = [];
+  if (!config.streams) config.streams = {};
   config.__path = configPath;
 
-  cachedConfig = config;
   return config;
 }
+
+// Frontend would only get config from env var WT_CONFIG_PATH
+// This would be passed when spawning vite process
+export const frontendConfig = getConfig({
+  from_flags: false,
+  from_env: true,
+});
+
+export const mediaConfig = getConfig();

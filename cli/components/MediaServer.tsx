@@ -5,7 +5,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { VideoWsMessage } from "../../definitions";
 import { logger } from "../utils/logger";
 import { jsonBigIntReplacer } from "../utils/json";
-import { getConfig } from "../../config";
+import { mediaConfig } from "../../config";
 
 type WsClient = {
   id: string;
@@ -22,7 +22,6 @@ export default function MediaServer() {
   } = {};
 
   const log = logger(setOutput);
-  const config = getConfig();
 
   function broadcast(opts: {
     header: Record<string, any>;
@@ -100,9 +99,8 @@ export default function MediaServer() {
     // This function would set up a WebSocket server to stream media frames to connected clients
     log("Starting Media WebSocket Server...");
 
-    const config = getConfig();
     // Create a new WebSocket server on configurable port
-    const wss = new WebSocketServer({ port: config.media_server.port });
+    const wss = new WebSocketServer({ port: mediaConfig.media_server.port });
 
     // This event listener is fired when a new client connects to the server
     wss.on("connection", (ws, req) => {
@@ -157,15 +155,14 @@ export default function MediaServer() {
 
     log(
       "WebSocket server is running on ws://localhost:" +
-        config.media_server.port
+        mediaConfig.media_server.port
     );
   }
 
   useEffect(() => {
-    loopStream(
-      "camera-1",
-      "http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4"
-    );
+    Object.entries(mediaConfig.streams).forEach(([id, stream]) => {
+      loopStream(id, stream.uri);
+    });
     startMediaServer();
   }, []);
 
@@ -177,7 +174,8 @@ export default function MediaServer() {
       paddingX={1}
     >
       <Text color="green">
-        <Text bold>Media Source:</Text> Streaming at :{config.media_server.port}
+        <Text bold>Media Source:</Text> Streaming at :
+        {mediaConfig.media_server.port}
       </Text>
       <Text color="gray">{output.join("\n")}</Text>
     </Box>

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { render, Text, Box, Newline } from "ink";
 import { spawn } from "child_process";
-import { getConfig } from "../../config";
+import { useEffect, useState } from "react";
+import { mediaConfig } from "../../config";
 import { logger } from "../utils/logger";
 
 export default function useDevServer() {
@@ -11,19 +10,18 @@ export default function useDevServer() {
   const log = logger(setOutput);
 
   useEffect(() => {
-    const config = getConfig();
     // Spawn vite with environment variables that preserve colors
     const viteProcess = spawn("npx", ["vite"], {
       stdio: ["inherit", "pipe", "pipe"],
       env: {
         ...process.env,
-        WT_CONFIG_PATH: config.__path,
+        WT_CONFIG_PATH: mediaConfig.__path,
         // Force colors to be enabled in the child process
         FORCE_COLOR: "1",
       },
     });
 
-    setStatus(`Running at :${config.port}`);
+    setStatus(`Running at :${mediaConfig.port}`);
 
     viteProcess.stdout.on("data", (data) => {
       log(data.toString());
