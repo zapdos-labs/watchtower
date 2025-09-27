@@ -5,8 +5,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import mime from "mime-types";
 import httpProxy from "http-proxy";
-import { logger } from "./utils/logger";
-import { getConfig } from "../config";
+import { logger } from "../utils/logger";
+import { getConfig } from "../../config";
 
 export default function useProdServer() {
   const [status, setStatus] = useState("Initializing...");

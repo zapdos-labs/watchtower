@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { render, Text, Box, Newline } from "ink";
 import { spawn } from "child_process";
-import { logger } from "./utils/logger";
-import { getConfig } from "../config";
+import { getConfig } from "../../config";
+import { logger } from "../utils/logger";
 
 export default function useDevServer() {
   const [status, setStatus] = useState("Starting...");
