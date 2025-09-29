@@ -6,7 +6,7 @@
   "streams": {
     "camera-1": {
       "label": "South West Gate",
-      "uri": "http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4"
+      "uri": "http://153.156.230.207:8084/-wvhttp-01-/GetOneShot?image_size=640x480&frame_count=1000000000"
     },
     "camera-2": {
       "label": "East Gate",

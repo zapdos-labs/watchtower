@@ -1,48 +1,15 @@
-import {
-  BsBellFill,
-  BsChevronDown,
-  BsGearFill,
-  BsInfoCircleFill,
-} from "solid-icons/bs";
-import { onCleanup, onMount, untrack } from "solid-js";
-import { WsHeader } from "../definitions";
-import { EventBar } from "./components/EventBar";
-import SearchBar from "./components/SearchBar";
+import { onCleanup, onMount } from "solid-js";
+import CameraView from "./components/CameraView";
 import SideBar from "./components/SideBar";
-import useVideoPlayer from "./components/useVideoPlayer";
-import { selectedStreamId, setConfig, setSelectedStreamId } from "./utils";
+import {
+  parseWsMessage,
+  selectedStreamId,
+  setConfig,
+  setLatestWsMessage,
+  setSelectedStreamId,
+} from "./utils";
 
 export default function App() {
-  const videoPlayer = useVideoPlayer();
-
-  function parseBinaryMessage(buffer: ArrayBuffer): {
-    header: WsHeader;
-    imageBuffer: ArrayBuffer;
-  } {
-    // Use a DataView to safely read numbers from the buffer
-    const view = new DataView(buffer);
-
-    // 1. Read the header length from the first 4 bytes (at offset 0)
-    // The 'false' argument specifies Big-Endian, matching our server.
-    const headerLength = view.getUint32(0, false);
-
-    // 2. Define the byte offsets for the different parts
-    const headerStart = 4; // Header starts after the 4-byte length prefix
-    const imageStart = headerStart + headerLength;
-
-    // 3. Decode the header string (from bytes to a string)
-    // Use TextDecoder for proper UTF-8 handling.
-    const headerSlice = buffer.slice(headerStart, imageStart);
-    const headerString = new TextDecoder().decode(headerSlice);
-    const header = JSON.parse(headerString);
-
-    // 4. Extract the image data
-    // The image is the rest of the buffer after the header.
-    const imageBuffer = buffer.slice(imageStart);
-
-    return { header, imageBuffer };
-  }
-
   onMount(() => {
     // Connect to websocket server
     const socket = new WebSocket("/ws");
@@ -61,38 +28,14 @@ export default function App() {
     });
 
     socket.addEventListener("message", (event) => {
-      // We only expect ArrayBuffer messages now
-      if (event.data instanceof ArrayBuffer) {
-        // TODO: demux here
-        const { header, imageBuffer } = parseBinaryMessage(event.data);
+      const message = parseWsMessage(event.data);
+      setLatestWsMessage(message);
 
-        if (header.type === "frame") {
-          const sid = untrack(selectedStreamId);
-          if (header.stream_id === sid) {
-            videoPlayer.setImageBuffer(imageBuffer);
-          }
-        }
-      } else {
-        try {
-          const json: WsHeader = JSON.parse(event.data);
-          console.log("Received JSON message:", json);
-          if (json.type === "codecpar") {
-            videoPlayer.setCodecpar(json.data);
-          }
-
-          if (json.type === "config") {
-            setConfig(json.data);
-            // TODO: Delete this later
-            const firstStreamId = Object.keys(json.data.streams).at(0);
-            setSelectedStreamId(firstStreamId);
-          }
-        } catch (e) {
-          console.error(
-            "Received non-binary message that is not valid JSON:",
-            event.data
-          );
-          return;
-        }
+      if (message.header.type === "config") {
+        setConfig(message.header.data);
+        // TODO: Delete this later
+        const firstStreamId = Object.keys(message.header.data.streams).at(0);
+        setSelectedStreamId(firstStreamId);
       }
     });
 
@@ -105,36 +48,5 @@ export default function App() {
     });
   });
 
-  return (
-    <div class="h-screen flex flex-col">
-      <div class="flex items-start flex-1 gap-2">
-        <SideBar />
-
-        <div class="flex-1 flex flex-col h-full">
-          <div class="flex-none h-12 relative flex items-center px-2 gap-2">
-            <button class="flex items-center space-x-2 text-neutral-400 hover:text-white">
-              <div class="text-xs  font-semibold">SSA MARINE MIT SW Cam</div>
-              <BsChevronDown class="w-4 h-4" />
-            </button>
-            <div class="flex-1" />
-            <SearchBar />
-
-            <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
-              <BsBellFill class="w-4 h-4 " />
-            </button>
-
-            <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
-              <BsGearFill class="w-4 h-4 " />
-            </button>
-
-            <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
-              <BsInfoCircleFill class="w-4 h-4 " />
-            </button>
-          </div>
-          <videoPlayer.component />
-        </div>
-      </div>
-      <EventBar />
-    </div>
-  );
+  return <CameraView sidebar={<SideBar />} id={selectedStreamId} />;
 }

@@ -3,6 +3,11 @@ import { hideBin } from "yargs/helpers";
 import fs from "fs";
 import path from "path";
 
+export type ConfigViewItem = {
+  label: string;
+  streams: string[];
+};
+
 export type WatchtowerConfig = {
   port: number;
   media_server: {
@@ -14,10 +19,7 @@ export type WatchtowerConfig = {
       uri: string;
     };
   };
-  views?: {
-    label: string;
-    streams: string[];
-  }[];
+  views?: ConfigViewItem[];
 
   __path?: string;
 };

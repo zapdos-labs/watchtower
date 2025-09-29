@@ -1,15 +1,57 @@
-import { createSignal, For, onMount } from "solid-js";
-import { config, getDynamicIcon } from "../utils";
-import { BsChevronDown, BsChevronExpand } from "solid-icons/bs";
-import {
-  FiBarChart2,
-  FiFilm,
-  FiGrid,
-  FiLayers,
-  FiLayout,
-  FiMessageCircle,
-} from "solid-icons/fi";
-import { FaSolidChevronDown, FaSolidPlus } from "solid-icons/fa";
+import { IconTypes } from "solid-icons";
+import { FaSolidChevronDown, FaSolidExpand, FaSolidPlus } from "solid-icons/fa";
+import { FiFilm, FiGrid, FiLayout, FiMessageCircle } from "solid-icons/fi";
+import { createSignal, For, onMount, Show } from "solid-js";
+import { config, setTabId, TabId } from "../utils";
+import { ConfigViewItem } from "../../config";
+
+function SideBarViewItem(props: { view: ConfigViewItem }) {
+  // TODO: persist open state
+  const [isOpen, setIsOpen] = createSignal(true);
+
+  return (
+    <div class="mx-2 ">
+      <div
+        onClick={() => setIsOpen((o) => !o)}
+        class="cursor-pointer flex items-center px-1  rounded-lg  py-2 hover:text-white hover:bg-neutral-800  text-neutral-500 group"
+      >
+        <div class="ml-2 mr-2">
+          <FaSolidChevronDown
+            data-open={isOpen()}
+            class="w-4 h-4 data-[open=true]:rotate-180 transition-transform"
+          />
+        </div>
+
+        <div class="font-semibold ml-1">{props.view.label}</div>
+        <div class="flex-1" />
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          class="p-1 rounded hover:text-white hover:bg-neutral-700  text-neutral-600 group-hover:opacity-100 opacity-0 transition-all"
+        >
+          <FaSolidExpand class="w-4 h-4" />
+        </button>
+      </div>
+      <div
+        data-open={isOpen()}
+        class="border-l-2 border-zinc-700 mt-1 pl-0.5 ml-5 data-[open=false]:max-h-0 overflow-hidden transition-all duration-200 max-h-[1000px]"
+      >
+        <For each={props.view.streams}>
+          {(stream_id) => {
+            const label = config()?.streams?.[stream_id].label || stream_id;
+            return (
+              <div class="cursor-pointer px-3 py-2 mx-2 space-x-3  rounded-lg hover:bg-neutral-800 flex items-center text-neutral-300 hover:text-white">
+                <div class="text-sm">{label}</div>
+              </div>
+            );
+          }}
+        </For>
+      </div>
+    </div>
+  );
+}
 
 export default function SideBar() {
   const views = () => {
@@ -17,11 +59,7 @@ export default function SideBar() {
     return cf?.views || [];
   };
 
-  onMount(() => {
-    // setViews(frontendConfig.views);
-  });
-
-  const items = {
+  const items: Record<TabId, { label: string; icon: IconTypes }> = {
     home: {
       label: "Home",
       icon: FiGrid,
@@ -35,38 +73,6 @@ export default function SideBar() {
       icon: FiFilm,
     },
   };
-
-  // {
-  //   "v-0000": {
-  //     label: "Exterior",
-  //     cameras: [
-  //       {
-  //         label: "South West Gate",
-  //       },
-  //       {
-  //         label: "East Gate",
-  //       },
-  //       {
-  //         label: "Parking Lot",
-  //       },
-  //     ],
-  //   },
-  //   "v-0001": {
-  //     label: "Interior",
-  //     cameras: [
-  //       {
-  //         label: "Lobby",
-  //       },
-  //       { label: "Warehouse" },
-  //       {
-  //         label: "Reception",
-  //       },
-  //       {
-  //         label: "Cafeteria",
-  //       },
-  //     ],
-  //   },
-  // };
 
   return (
     <div class="w-60 flex-none h-full bg-neutral-900 space-y-4">
@@ -83,7 +89,10 @@ export default function SideBar() {
             {([key, item]) => {
               const Icon = item.icon;
               return (
-                <div class="cursor-pointer px-3 py-2 mx-2 space-x-3  rounded-lg hover:bg-neutral-800 flex items-center text-neutral-300 hover:text-white">
+                <div
+                  onClick={() => setTabId(key as TabId)}
+                  class="cursor-pointer px-3 py-2 mx-2 space-x-3  rounded-lg hover:bg-neutral-800 flex items-center text-neutral-300 hover:text-white"
+                >
                   <Icon class="w-4 h-4" />
                   <div>{item.label}</div>
                 </div>
@@ -102,38 +111,7 @@ export default function SideBar() {
           </button>
         </div>
         <div class="space-y-1">
-          <For each={views()}>
-            {(view) => {
-              return (
-                <div class="ml-3.5">
-                  <div class="flex items-center space-x-1">
-                    <button class="p-1 rounded hover:text-white hover:bg-neutral-800 mr-2 text-neutral-500">
-                      <FiLayout class="w-4 h-4" />
-                    </button>
-
-                    <div class="font-semibold">{view.label}</div>
-                    <div class="flex-1" />
-                    <button class="p-1 rounded hover:text-white hover:bg-neutral-800 mr-2 text-neutral-600">
-                      <FaSolidChevronDown class="w-4 h-4 " />
-                    </button>
-                  </div>
-                  <div class="border-l-2 border-zinc-700 mt-1 pl-0.5 ml-2.5">
-                    <For each={view.streams}>
-                      {(stream_id) => {
-                        const label =
-                          config()?.streams?.[stream_id].label || stream_id;
-                        return (
-                          <div class="cursor-pointer px-3 py-2 mx-2 space-x-3  rounded-lg hover:bg-neutral-800 flex items-center text-neutral-300 hover:text-white">
-                            <div class="text-sm">{label}</div>
-                          </div>
-                        );
-                      }}
-                    </For>
-                  </div>
-                </div>
-              );
-            }}
-          </For>
+          <For each={views()}>{(view) => <SideBarViewItem view={view} />}</For>
         </div>
       </div>
     </div>

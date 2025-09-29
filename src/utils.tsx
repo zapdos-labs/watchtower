@@ -3,6 +3,7 @@ import * as allBsIcons from "solid-icons/bs";
 import * as allFaIcons from "solid-icons/fa";
 import { Component, createSignal } from "solid-js";
 import { WatchtowerConfig } from "../config";
+import { WsHeader } from "../definitions";
 
 export function notEmpty<TValue>(
   value: TValue | null | undefined
@@ -105,3 +106,47 @@ export const buildMarks = (range: TimeRange) => {
 
 export const [config, setConfig] = createSignal<WatchtowerConfig>();
 export const [selectedStreamId, setSelectedStreamId] = createSignal<string>();
+
+export type TabId = "home" | "chat" | "moments";
+export const [tabId, setTabId] = createSignal<TabId>("home");
+
+export function parseWsMessage(buffer: ArrayBuffer | string): {
+  header: WsHeader;
+  imageBuffer?: ArrayBuffer;
+} {
+  if (typeof buffer === "string") {
+    const header = JSON.parse(buffer) as WsHeader;
+    return { header };
+  }
+
+  // Use a DataView to safely read numbers from the buffer
+  const view = new DataView(buffer);
+
+  // 1. Read the header length from the first 4 bytes (at offset 0)
+  // The 'false' argument specifies Big-Endian, matching our server.
+  const headerLength = view.getUint32(0, false);
+
+  // 2. Define the byte offsets for the different parts
+  const headerStart = 4; // Header starts after the 4-byte length prefix
+  const imageStart = headerStart + headerLength;
+
+  // 3. Decode the header string (from bytes to a string)
+  // Use TextDecoder for proper UTF-8 handling.
+  const headerSlice = buffer.slice(headerStart, imageStart);
+  const headerString = new TextDecoder().decode(headerSlice);
+  const header = JSON.parse(headerString);
+
+  // 4. Extract the image data
+  // The image is the rest of the buffer after the header.
+  if (imageStart >= buffer.byteLength) {
+    return { header };
+  }
+
+  const imageBuffer = buffer.slice(imageStart);
+  return { header, imageBuffer };
+}
+
+export const [latestWsMessage, setLatestWsMessage] = createSignal<{
+  header: WsHeader;
+  imageBuffer?: ArrayBuffer;
+}>();
