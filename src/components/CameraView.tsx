@@ -4,16 +4,16 @@ import {
   BsGearFill,
   BsInfoCircleFill,
 } from "solid-icons/bs";
-import { Accessor, createEffect, untrack } from "solid-js";
+import { Accessor, createEffect, onMount, untrack } from "solid-js";
 import { WsHeader } from "../../definitions";
-import { latestWsMessage } from "../utils";
+import { globalState, latestWsMessage, setGlobalState } from "../utils";
 import { EventBar } from "./EventBar";
 import SearchBar from "./SearchBar";
 import useVideoPlayer from "./useVideoPlayer";
 
 export default function CameraView(props: {
   sidebar: any;
-  id: Accessor<string | undefined>;
+  id: Accessor<string>;
 }) {
   const videoPlayer = useVideoPlayer();
 
@@ -24,40 +24,18 @@ export default function CameraView(props: {
     header: WsHeader;
     imageBuffer?: ArrayBuffer;
   }) {
-    console.log("CameraView received message", { header });
     const sid = untrack(props.id);
 
     if (header.type === "frame") {
-      if (header.stream_id !== sid) {
-        console.log(
-          "Frame received but stream_id doesn't match:",
-          header.stream_id,
-          "vs",
-          sid
-        );
-        return;
-      }
-      console.log("Processing frame for stream", sid);
+      if (header.stream_id !== sid) return;
 
       videoPlayer.setImageBuffer(imageBuffer);
     }
 
     if (header.type === "codecpar") {
-      if (header.stream_id !== sid) {
-        console.log(
-          "Codecpar received but stream_id doesn't match:",
-          header.stream_id,
-          "vs",
-          sid
-        );
-        return;
-      }
-      console.log("Processing codecpar for stream", sid);
+      if (header.stream_id !== sid) return;
       videoPlayer.setCodecpar(header.data);
-    }
-
-    if (header.type === "config") {
-      console.log("Received config message in CameraView");
+      setGlobalState("streams", sid, "codecpar", header.data);
     }
   }
 
@@ -65,6 +43,15 @@ export default function CameraView(props: {
     const msg = latestWsMessage();
     if (!msg) return;
     onMessage(msg);
+  });
+
+  onMount(() => {
+    const codecpar = untrack(() => {
+      const sid = props.id();
+      return globalState.streams[sid]?.codecpar;
+    });
+    if (!codecpar) return;
+    videoPlayer.setCodecpar(codecpar);
   });
 
   return (

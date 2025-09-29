@@ -1,8 +1,14 @@
 import { IconTypes } from "solid-icons";
 import { FaSolidChevronDown, FaSolidExpand, FaSolidPlus } from "solid-icons/fa";
-import { FiFilm, FiGrid, FiLayout, FiMessageCircle } from "solid-icons/fi";
+import {
+  FiBarChart,
+  FiFilm,
+  FiGrid,
+  FiLayout,
+  FiMessageCircle,
+} from "solid-icons/fi";
 import { createSignal, For, onMount, Show } from "solid-js";
-import { config, setTabId, TabId } from "../utils";
+import { config, setTabId, tabId, TabId } from "../utils";
 import { ConfigViewItem } from "../../config";
 
 function SideBarViewItem(props: { view: ConfigViewItem }) {
@@ -36,13 +42,22 @@ function SideBarViewItem(props: { view: ConfigViewItem }) {
       </div>
       <div
         data-open={isOpen()}
-        class="border-l-2 border-zinc-700 mt-1 pl-0.5 ml-5 data-[open=false]:max-h-0 overflow-hidden transition-all duration-200 max-h-[1000px]"
+        class=" mt-1 pl-0.5 ml-5 data-[open=false]:max-h-0 overflow-hidden transition-all duration-200 max-h-[1000px]"
       >
         <For each={props.view.streams}>
           {(stream_id) => {
             const label = config()?.streams?.[stream_id].label || stream_id;
             return (
-              <div class="cursor-pointer px-3 py-2 mx-2 space-x-3  rounded-lg hover:bg-neutral-800 flex items-center text-neutral-300 hover:text-white">
+              <div
+                data-active={stream_id === tabId().stream_id}
+                onClick={() => {
+                  setTabId({
+                    type: "stream",
+                    stream_id,
+                  });
+                }}
+                class="cursor-pointer px-3 py-2 mx-2 space-x-3  rounded-lg hover:bg-neutral-800 flex items-center text-neutral-400 hover:text-white data-[active=true]:bg-neutral-800 data-[active=true]:text-white"
+              >
                 <div class="text-sm">{label}</div>
               </div>
             );
@@ -59,14 +74,16 @@ export default function SideBar() {
     return cf?.views || [];
   };
 
-  const items: Record<TabId, { label: string; icon: IconTypes }> = {
+  const items: Partial<
+    Record<TabId["type"], { label: string; icon: IconTypes }>
+  > = {
     home: {
       label: "Home",
       icon: FiGrid,
     },
-    chat: {
-      label: "Chat",
-      icon: FiMessageCircle,
+    statistics: {
+      label: "Stats",
+      icon: FiBarChart,
     },
     moments: {
       label: "Moments",
@@ -77,7 +94,7 @@ export default function SideBar() {
   return (
     <div class="w-60 flex-none h-full bg-neutral-900 space-y-4">
       <div class="mx-4 mt-4">
-        <div class="flex-1 font-ibm font-bold text-white text-2xl">
+        <div class="flex-1 font-montserrat font-bold text-white text-2xl">
           Zapdos Labs
         </div>
       </div>
@@ -90,8 +107,11 @@ export default function SideBar() {
               const Icon = item.icon;
               return (
                 <div
-                  onClick={() => setTabId(key as TabId)}
-                  class="cursor-pointer px-3 py-2 mx-2 space-x-3  rounded-lg hover:bg-neutral-800 flex items-center text-neutral-300 hover:text-white"
+                  data-active={key === tabId().type}
+                  onClick={() => {
+                    setTabId({ type: key } as any);
+                  }}
+                  class="cursor-pointer px-3 py-2 mx-2 space-x-3  rounded-lg hover:bg-neutral-800 flex items-center text-neutral-300 hover:text-white data-[active=true]:bg-neutral-800 data-[active=true]:text-white"
                 >
                   <Icon class="w-4 h-4" />
                   <div>{item.label}</div>

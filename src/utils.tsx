@@ -1,9 +1,10 @@
 import { IconTypes } from "solid-icons";
 import * as allBsIcons from "solid-icons/bs";
 import * as allFaIcons from "solid-icons/fa";
-import { Component, createSignal } from "solid-js";
+import { batch, Component, createSignal } from "solid-js";
 import { WatchtowerConfig } from "../config";
 import { WsHeader } from "../definitions";
+import { createStore } from "solid-js/store";
 
 export function notEmpty<TValue>(
   value: TValue | null | undefined
@@ -105,10 +106,19 @@ export const buildMarks = (range: TimeRange) => {
 };
 
 export const [config, setConfig] = createSignal<WatchtowerConfig>();
-export const [selectedStreamId, setSelectedStreamId] = createSignal<string>();
 
-export type TabId = "home" | "chat" | "moments";
-export const [tabId, setTabId] = createSignal<TabId>("home");
+export type TabId =
+  | {
+      type: "stream";
+      stream_id: string;
+    }
+  | {
+      type: "home" | "statistics" | "moments";
+      stream_id?: string;
+    };
+export const [tabId, setTabId] = createSignal<TabId>({
+  type: "home",
+});
 
 export function parseWsMessage(buffer: ArrayBuffer | string): {
   header: WsHeader;
@@ -150,3 +160,60 @@ export const [latestWsMessage, setLatestWsMessage] = createSignal<{
   header: WsHeader;
   imageBuffer?: ArrayBuffer;
 }>();
+
+export const [globalState, _setGlobalState] = createStore<{
+  streams: Record<
+    string,
+    {
+      codecpar?: {
+        width: number;
+        height: number;
+      };
+    }
+  >;
+}>({
+  streams: {},
+});
+
+/**
+ * A generalized setter for the global state.
+ * It ensures that nested objects are created if they don't exist before setting a value.
+ *
+ * @param {...any} args - The path to the value to set, followed by the value itself.
+ *                         For example: setGlobalState("users", "user1", "profile", "name", "John Doe");
+ */
+export const setGlobalState = (...args: any[]) => {
+  batch(() => {
+    // Path to the property to be set, excluding the final value.
+    const path = args.slice(0, -1);
+
+    if (path.length > 0) {
+      // Create nested objects if they don't exist.
+      // We only need to iterate up to the second to last element of the path,
+      // as the last element is the key for the value being set.
+      for (let i = 1; i < path.length; i++) {
+        const subPath = path.slice(0, i);
+
+        // To check for existence, we need to traverse the globalState.
+        let current = globalState;
+        for (const key of subPath) {
+          // @ts-ignore
+          current = current?.[key];
+        }
+
+        if (
+          current === undefined ||
+          typeof current !== "object" ||
+          current === null
+        ) {
+          // If at any point the path doesn't exist or is not an object, create it.
+          // @ts-ignore
+          _setGlobalState(...subPath, {});
+        }
+      }
+    }
+
+    // @ts-ignore
+    _setGlobalState(...args);
+  });
+};

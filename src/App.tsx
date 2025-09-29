@@ -1,13 +1,15 @@
-import { onCleanup, onMount } from "solid-js";
+import { Match, onCleanup, onMount, Switch } from "solid-js";
 import CameraView from "./components/CameraView";
 import SideBar from "./components/SideBar";
 import {
   parseWsMessage,
-  selectedStreamId,
   setConfig,
   setLatestWsMessage,
-  setSelectedStreamId,
+  setTabId,
+  tabId,
 } from "./utils";
+import TabLayout from "./components/TabLayout";
+import HomeMain from "./components/HomeMain";
 
 export default function App() {
   onMount(() => {
@@ -34,8 +36,13 @@ export default function App() {
       if (message.header.type === "config") {
         setConfig(message.header.data);
         // TODO: Delete this later
-        const firstStreamId = Object.keys(message.header.data.streams).at(0);
-        setSelectedStreamId(firstStreamId);
+        // const firstStreamId = Object.keys(message.header.data.streams).at(0);
+        // if (firstStreamId) {
+        //   setTabId({
+        //     type: "stream",
+        //     stream_id: firstStreamId,
+        //   });
+        // }
       }
     });
 
@@ -48,5 +55,25 @@ export default function App() {
     });
   });
 
-  return <CameraView sidebar={<SideBar />} id={selectedStreamId} />;
+  const sidebar = <SideBar />;
+
+  return (
+    <Switch fallback={<div>Loading...</div>}>
+      <Match when={tabId().type === "stream"}>
+        <CameraView sidebar={sidebar} id={() => tabId().stream_id!} />
+      </Match>
+
+      <Match when={tabId().type === "home"}>
+        <TabLayout sidebar={sidebar} main={<HomeMain />} />
+      </Match>
+
+      <Match when={tabId().type === "statistics"}>
+        <TabLayout sidebar={sidebar} main={<div>Stats</div>} />
+      </Match>
+
+      <Match when={tabId().type === "moments"}>
+        <TabLayout sidebar={sidebar} main={<div>Moments</div>} />
+      </Match>
+    </Switch>
+  );
 }
