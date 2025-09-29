@@ -1,7 +1,8 @@
 import { IconTypes } from "solid-icons";
 import * as allBsIcons from "solid-icons/bs";
 import * as allFaIcons from "solid-icons/fa";
-import { Component } from "solid-js";
+import { Component, createSignal } from "solid-js";
+import { WatchtowerConfig } from "../config";
 
 export function notEmpty<TValue>(
   value: TValue | null | undefined
@@ -101,3 +102,6 @@ export const buildMarks = (range: TimeRange) => {
 
   return [...result, ...minorMarks];
 };
+
+export const [config, setConfig] = createSignal<WatchtowerConfig>();
+export const [selectedStreamId, setSelectedStreamId] = createSignal<string>();

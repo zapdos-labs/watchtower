@@ -3,7 +3,7 @@ import { hideBin } from "yargs/helpers";
 import fs from "fs";
 import path from "path";
 
-type WatchtowerConfig = {
+export type WatchtowerConfig = {
   port: number;
   media_server: {
     port: number;
@@ -14,6 +14,11 @@ type WatchtowerConfig = {
       uri: string;
     };
   };
+  views?: {
+    label: string;
+    streams: string[];
+  }[];
+
   __path?: string;
 };
 
@@ -85,9 +90,9 @@ export function getConfig(opts?: GetConfigOpts) {
   return config;
 }
 
-// Frontend would only get config from env var WT_CONFIG_PATH
+// Only get config from env var WT_CONFIG_PATH
 // This would be passed when spawning vite process
-export const frontendConfig = getConfig({
+export const viteProcessConfig = getConfig({
   from_flags: false,
   from_env: true,
 });

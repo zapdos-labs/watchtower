@@ -2,17 +2,16 @@ import { Box, Newline, render, Text } from "ink";
 import React, { useEffect, useState } from "react";
 import { forwardStream } from "../utils/startForward";
 import { WebSocketServer, WebSocket } from "ws";
-import { VideoWsMessage } from "../../definitions";
+import { WsHeader } from "../../definitions";
 import { logger } from "../utils/logger";
 import { jsonBigIntReplacer } from "../utils/json";
 import { mediaConfig } from "../../config";
+import { AV_LOG_WARNING, Log } from "node-av";
 
 type WsClient = {
   id: string;
   ip: string | undefined;
-  ws: WebSocket & {
-    send: (data: VideoWsMessage) => boolean;
-  };
+  ws: WebSocket;
 };
 
 export default function MediaServer() {
@@ -24,7 +23,7 @@ export default function MediaServer() {
   const log = logger(setOutput);
 
   function broadcast(opts: {
-    header: Record<string, any>;
+    header: WsHeader;
     buffer?: ArrayBufferLike;
     clients: WsClient[];
   }) {
@@ -60,31 +59,30 @@ export default function MediaServer() {
     };
   } = {};
 
-  async function loopStream(id: string, url: string) {
+  async function loopStream(stream_id: string, url: string) {
     const messages = forwardStream(url);
 
     try {
       for await (const msg of messages) {
         if (msg.type === "frame") {
           broadcast({
-            header: { type: "frame", id },
+            header: { type: "frame", stream_id },
             buffer: msg.buffer,
             clients: Object.values(clients),
           });
         }
 
+        // Forward codecpar messages to clients
         if (msg.type === "codecpar") {
-          const header = {
-            type: "codecpar",
-            id,
-            data: msg.data,
-          };
-
-          if (!streams[id]) streams[id] = {};
-          streams[id].codecpar = msg.data;
+          if (!streams[stream_id]) streams[stream_id] = {};
+          streams[stream_id].codecpar = msg.data;
 
           broadcast({
-            header,
+            header: {
+              type: "codecpar",
+              stream_id,
+              data: msg.data,
+            },
             clients: Object.values(clients),
           });
         }
@@ -118,13 +116,23 @@ export default function MediaServer() {
         ws: ws as any,
       };
 
-      Object.entries(streams).forEach(([streamId, state]) => {
+      // Send config to the new client
+      broadcast({
+        header: {
+          type: "config",
+          data: mediaConfig,
+        },
+        clients: [clients[id]],
+      });
+
+      // Send codecpar of all streams to the new client
+      Object.entries(streams).forEach(([stream_id, state]) => {
         if (!state.codecpar) return;
         try {
           broadcast({
             header: {
               type: "codecpar",
-              id: streamId,
+              stream_id,
               data: state.codecpar,
             },
             clients: [clients[id]],
@@ -164,6 +172,16 @@ export default function MediaServer() {
       loopStream(id, stream.uri);
     });
     startMediaServer();
+  }, []);
+
+  useEffect(() => {
+    Log.setCallback((level, message) => {
+      if (level <= AV_LOG_WARNING) log("NODE-AV", message);
+    });
+
+    return () => {
+      Log.setCallback(null);
+    };
   }, []);
 
   return (

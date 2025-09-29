@@ -1,12 +1,46 @@
 {
-  "port": 3020,
+  "port": 3000,
   "media_server": {
-    "port": 8020
+    "port": 8000
   },
   "streams": {
     "camera-1": {
       "label": "South West Gate",
       "uri": "http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4"
+    },
+    "camera-2": {
+      "label": "East Gate",
+      "uri": "http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4"
+    },
+    "camera-3": {
+      "label": "Parking Lot",
+      "uri": "http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4"
+    },
+    "camera-4": {
+      "label": "Lobby",
+      "uri": "http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4"
+    },
+    "camera-5": {
+      "label": "Warehouse",
+      "uri": "http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4"
+    },
+    "camera-6": {
+      "label": "Reception",
+      "uri": "http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4"
+    },
+    "camera-7": {
+      "label": "Cafeteria",
+      "uri": "http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4"
     }
-  }
+  },
+  "views": [
+    {
+      "label": "Outside",
+      "streams": ["camera-1", "camera-2", "camera-3"]
+    },
+    {
+      "label": "Inside",
+      "streams": ["camera-4", "camera-5", "camera-6", "camera-7"]
+    }
+  ]
 }

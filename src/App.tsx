@@ -1,15 +1,24 @@
-import { BsBellFill, BsChevronDown, BsGearFill, BsInfoCircleFill } from "solid-icons/bs";
-import { onCleanup, onMount } from "solid-js";
-import { VideoWsMessage } from "../definitions";
+import {
+  BsBellFill,
+  BsChevronDown,
+  BsGearFill,
+  BsInfoCircleFill,
+} from "solid-icons/bs";
+import { onCleanup, onMount, untrack } from "solid-js";
+import { WsHeader } from "../definitions";
 import { EventBar } from "./components/EventBar";
 import SearchBar from "./components/SearchBar";
-import useVideoPlayer from "./components/useVideoPlayer";
 import SideBar from "./components/SideBar";
+import useVideoPlayer from "./components/useVideoPlayer";
+import { selectedStreamId, setConfig, setSelectedStreamId } from "./utils";
 
 export default function App() {
   const videoPlayer = useVideoPlayer();
 
-  function parseBinaryMessage(buffer: ArrayBuffer) {
+  function parseBinaryMessage(buffer: ArrayBuffer): {
+    header: WsHeader;
+    imageBuffer: ArrayBuffer;
+  } {
     // Use a DataView to safely read numbers from the buffer
     const view = new DataView(buffer);
 
@@ -31,94 +40,101 @@ export default function App() {
     // The image is the rest of the buffer after the header.
     const imageBuffer = buffer.slice(imageStart);
 
-    // --- You now have both the header and the buffer, correctly parsed ---
-    // console.log('Received Header:', header);
-    // console.log(`Received Image for stream ${header.id} with size ${imageBuffer.byteLength}`);
-
     return { header, imageBuffer };
   }
 
-
   onMount(() => {
     // Connect to websocket server
-    const socket = new WebSocket('/ws');
+    const socket = new WebSocket("/ws");
 
     // IMPORTANT: Set the binaryType to 'arraybuffer'
     // This tells the WebSocket to provide the data as an ArrayBuffer, not a Blob.
-    socket.binaryType = 'arraybuffer';
+    socket.binaryType = "arraybuffer";
 
     onCleanup(() => {
-      console.log('Closing WebSocket connection.');
+      console.log("Closing WebSocket connection.");
       socket.close();
     });
 
-    socket.addEventListener('open', () => {
-      console.log('Connected to WebSocket server');
+    socket.addEventListener("open", () => {
+      console.log("Connected to WebSocket server");
     });
 
-    socket.addEventListener('message', (event) => {
+    socket.addEventListener("message", (event) => {
       // We only expect ArrayBuffer messages now
       if (event.data instanceof ArrayBuffer) {
+        // TODO: demux here
         const { header, imageBuffer } = parseBinaryMessage(event.data);
-        videoPlayer.setImageBuffer(imageBuffer);
+
+        if (header.type === "frame") {
+          const sid = untrack(selectedStreamId);
+          if (header.stream_id === sid) {
+            videoPlayer.setImageBuffer(imageBuffer);
+          }
+        }
       } else {
         try {
-          const json: VideoWsMessage = JSON.parse(event.data);
-          console.log('Received JSON message:', json);
-          if (json.type === 'codecpar') {
+          const json: WsHeader = JSON.parse(event.data);
+          console.log("Received JSON message:", json);
+          if (json.type === "codecpar") {
             videoPlayer.setCodecpar(json.data);
           }
+
+          if (json.type === "config") {
+            setConfig(json.data);
+            // TODO: Delete this later
+            const firstStreamId = Object.keys(json.data.streams).at(0);
+            setSelectedStreamId(firstStreamId);
+          }
         } catch (e) {
-          console.error('Received non-binary message that is not valid JSON:', event.data);
+          console.error(
+            "Received non-binary message that is not valid JSON:",
+            event.data
+          );
           return;
         }
       }
-
-
     });
 
-    socket.addEventListener('close', () => {
-      console.log('Disconnected from WebSocket server');
+    socket.addEventListener("close", () => {
+      console.log("Disconnected from WebSocket server");
     });
 
-    socket.addEventListener('error', (error) => {
-      console.error('WebSocket error: ', error);
+    socket.addEventListener("error", (error) => {
+      console.error("WebSocket error: ", error);
     });
   });
 
-  return <div class="h-screen flex flex-col">
+  return (
+    <div class="h-screen flex flex-col">
+      <div class="flex items-start flex-1 gap-2">
+        <SideBar />
 
+        <div class="flex-1 flex flex-col h-full">
+          <div class="flex-none h-12 relative flex items-center px-2 gap-2">
+            <button class="flex items-center space-x-2 text-neutral-400 hover:text-white">
+              <div class="text-xs  font-semibold">SSA MARINE MIT SW Cam</div>
+              <BsChevronDown class="w-4 h-4" />
+            </button>
+            <div class="flex-1" />
+            <SearchBar />
 
-    <div class="flex items-start flex-1 gap-2">
+            <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
+              <BsBellFill class="w-4 h-4 " />
+            </button>
 
-      <SideBar />
+            <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
+              <BsGearFill class="w-4 h-4 " />
+            </button>
 
-      <div class="flex-1 flex flex-col h-full">
-        <div class="flex-none h-12 relative flex items-center px-2 gap-2">
-          <button class="flex items-center space-x-2 text-neutral-400 hover:text-white">
-            <div class="text-xs  font-semibold">SSA MARINE MIT SW Cam</div>
-            <BsChevronDown class="w-4 h-4" />
-          </button>
-          <div class="flex-1" />
-          <SearchBar />
-
-
-          <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
-            <BsBellFill class="w-4 h-4 " />
-          </button>
-
-          <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
-            <BsGearFill class="w-4 h-4 " />
-          </button>
-
-          <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
-            <BsInfoCircleFill class="w-4 h-4 " />
-          </button>
-
+            <button class="rounded-full p-2  hover:bg-neutral-800 hover:text-white text-neutral-400">
+              <BsInfoCircleFill class="w-4 h-4 " />
+            </button>
+          </div>
+          <videoPlayer.component />
         </div>
-        <videoPlayer.component />
       </div>
+      <EventBar />
     </div>
-    <EventBar />
-  </div>
+  );
 }
