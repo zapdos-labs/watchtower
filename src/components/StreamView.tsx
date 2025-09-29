@@ -11,7 +11,7 @@ import { EventBar } from "./EventBar";
 import SearchBar from "./SearchBar";
 import useVideoPlayer from "./useVideoPlayer";
 
-export default function CameraView(props: {
+export default function StreamView(props: {
   sidebar: any;
   id: Accessor<string>;
 }) {
@@ -56,7 +56,7 @@ export default function CameraView(props: {
 
   return (
     <div class="h-screen flex flex-col">
-      <div class="flex items-start flex-1 gap-2">
+      <div class="flex items-start flex-1">
         {props.sidebar}
 
         <div class="flex-1 flex flex-col h-full">

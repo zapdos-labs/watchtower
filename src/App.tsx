@@ -1,5 +1,5 @@
 import { Match, onCleanup, onMount, Switch } from "solid-js";
-import CameraView from "./components/CameraView";
+import StreamView from "./components/StreamView";
 import SideBar from "./components/SideBar";
 import {
   parseWsMessage,
@@ -60,7 +60,7 @@ export default function App() {
   return (
     <Switch fallback={<div>Loading...</div>}>
       <Match when={tabId().type === "stream"}>
-        <CameraView sidebar={sidebar} id={() => tabId().stream_id!} />
+        <StreamView sidebar={sidebar} id={() => tabId().stream_id!} />
       </Match>
 
       <Match when={tabId().type === "home"}>

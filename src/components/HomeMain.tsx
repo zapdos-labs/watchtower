@@ -5,7 +5,7 @@ import SearchBar from "./SearchBar";
 export default function HomeMain() {
   return (
     // Added `isolate` to create a new stacking context. This is important!
-    <div class="flex items-center flex-col h-full justify-center bg-neutral-950 space-y-16 relative isolate">
+    <div class="flex items-center flex-col h-full justify-center bg-neutral-950 space-y-16 relative isolate overflow-hidden">
       <div class="font-anton font-bold text-white text-6xl text-center relative z-10">
         Semantic search
         <br />
