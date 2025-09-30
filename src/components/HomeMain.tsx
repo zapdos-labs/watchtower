@@ -1,9 +1,13 @@
-import { FaSolidClockRotateLeft, FaSolidExpand } from "solid-icons/fa";
+import {
+  FaSolidClockRotateLeft,
+  FaSolidDisplay,
+  FaSolidExpand,
+} from "solid-icons/fa";
 import { Accessor, For } from "solid-js";
 import SearchBar from "./SearchBar";
 import useWsVideo from "./useWsVideo";
 import useVideoPlayer from "./useVideoPlayer";
-import { config } from "../utils";
+import { config, setTabId } from "../utils";
 
 function StreamItem(props: { id: Accessor<string> }) {
   const videoPlayer = useVideoPlayer();
@@ -51,10 +55,18 @@ export default function HomeMain() {
         </div>
       </div>
 
-      <div class="text-left w-[40vw] mt-12 space-y-6 relative z-30">
-        <button class="flex items-center space-x-2 text-neutral-400 hover:text-white transition-all duration-100 bg-neutral-900 hover:bg-neutral-950 border border-neutral-800/0 hover:border-neutral-800 px-4 py-2 rounded-lg">
-          <FaSolidExpand class="w-4 h-4" />
-          <div class="font-bold">View All</div>
+      <div class="text-left w-[40vw] mt-12 space-y-4 relative z-30">
+        <button
+          onClick={() => {
+            setTabId({
+              type: "multiview",
+              stream_ids: streams(),
+            });
+          }}
+          class="flex items-center space-x-2 text-neutral-400 hover:text-white transition-all duration-100 bg-neutral-900 hover:bg-neutral-950 border border-neutral-800/0 hover:border-neutral-800 px-4 py-2 rounded-lg"
+        >
+          <FaSolidDisplay class="w-4 h-4" />
+          <div class="font-bold text-sm">View All</div>
         </button>
 
         <div class="grid grid-cols-3 gap-4 ">

@@ -5,42 +5,42 @@
   },
   "streams": {
     "camera-1": {
-      "label": "South West Gate",
+      "label": "University Lab Pendulum",
       "uri": "http://pendelcam.kip.uni-heidelberg.de/mjpg/video.mjpg"
     },
     "camera-2": {
-      "label": "East Gate",
+      "label": "Panama Port",
       "uri": "http://200.46.196.243/axis-cgi/media.cgi?camera=1&videoframeskipmode=empty&videozprofile=classic&resolution=1280x720&audiodeviceid=0&audioinputid=0&audiocodec=aac&audiosamplerate=16000&audiobitrate=32000&timestamp=0&videocodec=h264&container=mp4"
     },
     "camera-3": {
-      "label": "Parking Lot",
+      "label": "Port",
       "uri": "http://77.110.245.165/axis-cgi/mjpg/video.cgi"
     },
     "camera-4": {
-      "label": "Lobby",
+      "label": "Parking Lot",
       "uri": "http://83.48.75.113:8320/axis-cgi/mjpg/video.cgi"
     },
     "camera-5": {
-      "label": "Warehouse",
+      "label": "Riverbank",
       "uri": "http://109.247.15.178:6001/mjpg/video.mjpg"
     },
     "camera-6": {
-      "label": "Reception",
+      "label": "Dock",
       "uri": "http://eyc.synology.me:10001/mjpg/video.mjpg"
     },
     "camera-7": {
-      "label": "Cafeteria",
+      "label": "Airport",
       "uri": "http://mmb.aa1.netvolante.jp:1025/mjpg/video.mjpg?resolution=640x360"
     }
   },
   "views": [
     {
-      "label": "Outside",
-      "streams": ["camera-1", "camera-2", "camera-3"]
+      "label": "Inside",
+      "streams": ["camera-1", "camera-2"]
     },
     {
-      "label": "Inside",
-      "streams": ["camera-4", "camera-5", "camera-6", "camera-7"]
+      "label": "Outside",
+      "streams": ["camera-3", "camera-4", "camera-5", "camera-6", "camera-7"]
     }
   ]
 }

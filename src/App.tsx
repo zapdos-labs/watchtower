@@ -10,6 +10,7 @@ import {
 } from "./utils";
 import TabLayout from "./components/TabLayout";
 import HomeMain from "./components/HomeMain";
+import MultiView from "./components/MultiView";
 
 export default function App() {
   onMount(() => {
@@ -73,6 +74,10 @@ export default function App() {
 
       <Match when={tabId().type === "moments"}>
         <TabLayout sidebar={sidebar} main={<div>Moments</div>} />
+      </Match>
+
+      <Match when={tabId().type === "multiview"}>
+        <TabLayout sidebar={sidebar} main={<MultiView />} />
       </Match>
     </Switch>
   );

@@ -1,5 +1,10 @@
 import { IconTypes } from "solid-icons";
-import { FaSolidChevronDown, FaSolidExpand, FaSolidPlus } from "solid-icons/fa";
+import {
+  FaSolidChevronDown,
+  FaSolidDisplay,
+  FaSolidExpand,
+  FaSolidPlus,
+} from "solid-icons/fa";
 import {
   FiBarChart,
   FiFilm,
@@ -34,10 +39,11 @@ function SideBarViewItem(props: { view: ConfigViewItem }) {
         <button
           onClick={(e) => {
             e.stopPropagation();
+            setTabId({ type: "multiview", stream_ids: props.view.streams });
           }}
           class="p-1 rounded hover:text-white hover:bg-neutral-700  text-neutral-600 group-hover:opacity-100 opacity-0 transition-all"
         >
-          <FaSolidExpand class="w-4 h-4" />
+          <FaSolidDisplay class="w-4 h-4" />
         </button>
       </div>
       <div
@@ -58,7 +64,7 @@ function SideBarViewItem(props: { view: ConfigViewItem }) {
                 }}
                 class="cursor-pointer px-3 py-2 mx-2 space-x-3  rounded-lg hover:bg-neutral-800 flex items-center text-neutral-400 hover:text-white data-[active=true]:bg-neutral-800 data-[active=true]:text-white"
               >
-                <div class="text-sm">{label}</div>
+                <div class="text-sm line-clamp-1 break-all">{label}</div>
               </div>
             );
           }}
