@@ -10,7 +10,7 @@ import useVideoPlayer from "./useVideoPlayer";
 import { config, setTabId } from "../utils";
 
 function StreamItem(props: { id: Accessor<string> }) {
-  const videoPlayer = useVideoPlayer();
+  const videoPlayer = useVideoPlayer({ fit: "cover" });
   useWsVideo({ id: props.id, videoPlayer });
 
   return (

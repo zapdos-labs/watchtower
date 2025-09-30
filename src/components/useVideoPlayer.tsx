@@ -1,7 +1,9 @@
 import { createSignal, createEffect } from "solid-js";
 import { createElementSize } from "@solid-primitives/resize-observer";
 
-export default function useVideoPlayer() {
+export default function useVideoPlayer(props?: { fit: "contain" | "cover" }) {
+  const fit = () => props?.fit || "contain";
+
   const [imageBuffer, setImageBuffer] = createSignal<ArrayBuffer>();
   const [canvasRef, setCanvasRef] = createSignal<HTMLCanvasElement>();
   const [containerRef, setContainerRef] = createSignal<HTMLDivElement>();
@@ -47,20 +49,36 @@ export default function useVideoPlayer() {
 
     let destWidth = 0;
     let destHeight = 0;
+    let destX = 0;
+    let destY = 0;
 
-    if (canvasAspectRatio > sourceAspectRatio) {
-      // Canvas is wider than the image (letterbox top/bottom)
-      destHeight = canvasHeight;
-      destWidth = destHeight * sourceAspectRatio;
+    if (fit() === "cover") {
+      if (canvasAspectRatio > sourceAspectRatio) {
+        // Canvas is wider than the source, so we match the width and clip vertically
+        destWidth = canvasWidth;
+        destHeight = destWidth / sourceAspectRatio;
+        destY = (canvasHeight - destHeight) / 2; // This will be negative
+      } else {
+        // Canvas is taller than or same as the source, so we match the height and clip horizontally
+        destHeight = canvasHeight;
+        destWidth = destHeight * sourceAspectRatio;
+        destX = (canvasWidth - destWidth) / 2; // This will be negative
+      }
     } else {
-      // Canvas is taller than or same ratio as the image (pillarbox left/right)
-      destWidth = canvasWidth;
-      destHeight = destWidth / sourceAspectRatio;
+      // Default "contain" logic
+      if (canvasAspectRatio > sourceAspectRatio) {
+        // Canvas is wider than the image (letterbox top/bottom)
+        destHeight = canvasHeight;
+        destWidth = destHeight * sourceAspectRatio;
+      } else {
+        // Canvas is taller than or same ratio as the image (pillarbox left/right)
+        destWidth = canvasWidth;
+        destHeight = destWidth / sourceAspectRatio;
+      }
+      // Calculate the centered position for "contain"
+      destX = (canvasWidth - destWidth) / 2;
+      destY = (canvasHeight - destHeight) / 2;
     }
-
-    // Calculate the centered position
-    const destX = (canvasWidth - destWidth) / 2;
-    const destY = (canvasHeight - destHeight) / 2;
 
     // --- End of Scaling Logic ---
 
@@ -68,7 +86,7 @@ export default function useVideoPlayer() {
     const blob = new Blob([buffer], { type: "image/jpeg" });
     const bitmap = await createImageBitmap(blob);
 
-    // 1. Clear the canvas and fill with black for the "bars"
+    // 1. Clear the canvas and fill with black for the "bars" (only visible in "contain" mode)
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
@@ -85,10 +103,10 @@ export default function useVideoPlayer() {
     component: () => {
       return (
         // This container defines the bounds for the canvas.
-        <div class="flex-1 w-full h-full relative" ref={setContainerRef}>
+        <div class="flex-1 w-full  h-full relative" ref={setContainerRef}>
           <canvas
             // The canvas is stretched to fill the container by absolute positioning
-            class="absolute top-0 left-0"
+            class="absolute top-0 left-0 "
             ref={setCanvasRef}
           />
         </div>
