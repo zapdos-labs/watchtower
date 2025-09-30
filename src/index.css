@@ -54,3 +54,7 @@ body {
  background: radial-gradient(circle, rgba(66, 37, 140, 1) 0%, rgba(252,70,107,0) 70%); 
  border-radius: 50%; 
 }
+
+.btn-primary {
+  @apply flex items-center space-x-2 text-neutral-400 hover:text-white transition-all duration-100 bg-neutral-900 hover:bg-neutral-950 border border-neutral-800/0 hover:border-neutral-800 px-4 py-2 rounded-lg
+}

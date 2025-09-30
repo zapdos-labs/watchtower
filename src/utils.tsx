@@ -119,9 +119,24 @@ export type TabId =
       type: "multiview";
       stream_ids: string[];
     };
-export const [tabId, setTabId] = createSignal<TabId>({
+
+export const [tabId, _setTabId] = createSignal<TabId>({
   type: "home",
 });
+
+let historyTabIds: TabId[] = [];
+export const setTabId = (id: TabId) => {
+  _setTabId((p) => {
+    historyTabIds.push(p);
+    return id;
+  });
+};
+export const goBackTabId = () => {
+  const last = historyTabIds.pop();
+  if (last) {
+    _setTabId(last);
+  }
+};
 
 export function parseWsMessage(buffer: ArrayBuffer | string): {
   header: WsHeader;

@@ -63,7 +63,7 @@ export default function HomeMain() {
               stream_ids: streams(),
             });
           }}
-          class="flex items-center space-x-2 text-neutral-400 hover:text-white transition-all duration-100 bg-neutral-900 hover:bg-neutral-950 border border-neutral-800/0 hover:border-neutral-800 px-4 py-2 rounded-lg"
+          class="btn-primary"
         >
           <FaSolidDisplay class="w-4 h-4" />
           <div class="font-bold text-sm">View All</div>

@@ -9,6 +9,7 @@ import { EventBar } from "./EventBar";
 import SearchBar from "./SearchBar";
 import useVideoPlayer from "./useVideoPlayer";
 import useWsVideo from "./useWsVideo";
+import GoBackButton from "./GoBackButton";
 
 export default function StreamView(props: {
   sidebar: any;
@@ -24,10 +25,13 @@ export default function StreamView(props: {
 
         <div class="flex-1 flex flex-col h-full">
           <div class="flex-none h-12 relative flex items-center px-2 gap-2">
-            <button class="flex items-center space-x-2 text-neutral-400 hover:text-white">
+            <GoBackButton />
+
+            <button class="flex items-center space-x-2 text-neutral-400 hover:text-white px-2 h-12">
               <div class="text-xs  font-semibold">SSA MARINE MIT SW Cam</div>
               <BsChevronDown class="w-4 h-4" />
             </button>
+
             <div class="flex-1" />
             <SearchBar />
 
