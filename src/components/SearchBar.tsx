@@ -98,13 +98,13 @@ export default function SearchBar(props?: { variant?: "md" | "lg" }) {
   return (
     <div>
       <Show when={isOpen()}>
-        <div class="fixed h-[100vh] w-[100vw] top-0 left-0 bg-black/80 z-[100]" />
+        <div class="fixed h-[100vh] w-[100vw] top-0 left-0  z-[100]" />
       </Show>
       <div
         ref={setBarRef}
         data-variant={variant()}
         data-open={isOpen()}
-        class="z-[200] absolute top-1 left-1/2 -translate-x-1/2 w-[24rem] data-[variant=lg]:w-[40vw] data-[open=true]:top-10 transition-[top,width,box-shadow] duration-300 ease-in-out data-[open=true]:w-[50vw] data-[variant=lg]:data-[open=true]:w-[50vw] data-[open=true]:drop-shadow-lg  data-[open=true]:border border-neutral-800  data-[open=false]:rounded-full  data-[open=true]:rounded-2xl overflow-hidden bg-neutral-900"
+        class="z-[200] absolute top-1 left-1/2 -translate-x-1/2 w-[24rem] data-[variant=lg]:w-[40vw] data-[open=true]:top-10 transition-[top,width,box-shadow] duration-300 ease-in-out data-[open=true]:w-[50vw] data-[variant=lg]:data-[open=true]:w-[50vw] data-[open=true]:drop-shadow-lg  data-[open=true]:border border-neutral-800  data-[open=false]:rounded-full  data-[open=true]:rounded-2xl overflow-hidden bg-neutral-900 data-[open=true]:bg-neutral-900 "
       >
         <div
           data-variant={variant()}

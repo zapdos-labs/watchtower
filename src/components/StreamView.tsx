@@ -4,55 +4,18 @@ import {
   BsGearFill,
   BsInfoCircleFill,
 } from "solid-icons/bs";
-import { Accessor, createEffect, onMount, untrack } from "solid-js";
-import { WsHeader } from "../../definitions";
-import { globalState, latestWsMessage, setGlobalState } from "../utils";
+import { Accessor } from "solid-js";
 import { EventBar } from "./EventBar";
 import SearchBar from "./SearchBar";
 import useVideoPlayer from "./useVideoPlayer";
+import useWsVideo from "./useWsVideo";
 
 export default function StreamView(props: {
   sidebar: any;
   id: Accessor<string>;
 }) {
   const videoPlayer = useVideoPlayer();
-
-  function onMessage({
-    header,
-    imageBuffer,
-  }: {
-    header: WsHeader;
-    imageBuffer?: ArrayBuffer;
-  }) {
-    const sid = untrack(props.id);
-
-    if (header.type === "frame") {
-      if (header.stream_id !== sid) return;
-
-      videoPlayer.setImageBuffer(imageBuffer);
-    }
-
-    if (header.type === "codecpar") {
-      if (header.stream_id !== sid) return;
-      videoPlayer.setCodecpar(header.data);
-      setGlobalState("streams", sid, "codecpar", header.data);
-    }
-  }
-
-  createEffect(() => {
-    const msg = latestWsMessage();
-    if (!msg) return;
-    onMessage(msg);
-  });
-
-  onMount(() => {
-    const codecpar = untrack(() => {
-      const sid = props.id();
-      return globalState.streams[sid]?.codecpar;
-    });
-    if (!codecpar) return;
-    videoPlayer.setCodecpar(codecpar);
-  });
+  useWsVideo({ id: props.id, videoPlayer });
 
   return (
     <div class="h-screen flex flex-col">

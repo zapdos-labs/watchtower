@@ -114,7 +114,10 @@ export type TabId =
     }
   | {
       type: "home" | "statistics" | "moments";
-      stream_id?: string;
+    }
+  | {
+      type: "multiview";
+      stream_ids: string[];
     };
 export const [tabId, setTabId] = createSignal<TabId>({
   type: "home",

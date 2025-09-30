@@ -49,7 +49,7 @@ function SideBarViewItem(props: { view: ConfigViewItem }) {
             const label = config()?.streams?.[stream_id].label || stream_id;
             return (
               <div
-                data-active={stream_id === tabId().stream_id}
+                data-active={stream_id === (tabId() as any).stream_id}
                 onClick={() => {
                   setTabId({
                     type: "stream",

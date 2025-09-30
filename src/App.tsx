@@ -60,7 +60,7 @@ export default function App() {
   return (
     <Switch fallback={<div>Loading...</div>}>
       <Match when={tabId().type === "stream"}>
-        <StreamView sidebar={sidebar} id={() => tabId().stream_id!} />
+        <StreamView sidebar={sidebar} id={() => (tabId() as any).stream_id} />
       </Match>
 
       <Match when={tabId().type === "home"}>
