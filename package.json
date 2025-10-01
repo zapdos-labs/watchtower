@@ -1,10 +1,10 @@
 {
-  "name": "@zapdos-labs/watchtower",
+  "name": "birdview",
   "version": "0.0.4",
   "description": "NVR for your cameras with AI capabilities",
   "type": "module",
   "bin": {
-    "watchtower": "./cli/dist/entry.js"
+    "birdview": "./cli/dist/entry.js"
   },
   "files": [
     "cli/dist",

@@ -2,7 +2,7 @@ import { IconTypes } from "solid-icons";
 import * as allBsIcons from "solid-icons/bs";
 import * as allFaIcons from "solid-icons/fa";
 import { batch, Component, createSignal } from "solid-js";
-import { WatchtowerConfig } from "../config";
+import { AppConfig } from "../config";
 import { WsHeader } from "../definitions";
 import { createStore } from "solid-js/store";
 
@@ -105,7 +105,7 @@ export const buildMarks = (range: TimeRange) => {
   return [...result, ...minorMarks];
 };
 
-export const [config, setConfig] = createSignal<WatchtowerConfig>();
+export const [config, setConfig] = createSignal<AppConfig>();
 
 export type TabId =
   | {

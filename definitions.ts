@@ -1,4 +1,4 @@
-import { WatchtowerConfig } from "./config";
+import { AppConfig } from "./config";
 export type WsHeader =
   | {
       type: "frame";
@@ -14,5 +14,5 @@ export type WsHeader =
     }
   | {
       type: "config";
-      data: WatchtowerConfig;
+      data: AppConfig;
     };

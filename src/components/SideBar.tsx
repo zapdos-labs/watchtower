@@ -99,9 +99,10 @@ export default function SideBar() {
 
   return (
     <div class="w-60 flex-none h-full bg-neutral-900 space-y-4">
-      <div class="mx-4 mt-4">
+      <div class="mx-4 mt-4 flex items-center space-x-3">
+        <img src="/logo.svg" class="w-10 h-10" />
         <div class="flex-1 font-montserrat font-bold text-white text-2xl">
-          Zapdos Labs
+          BirdView
         </div>
       </div>
 

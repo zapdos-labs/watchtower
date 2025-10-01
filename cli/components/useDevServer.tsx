@@ -15,7 +15,7 @@ export default function useDevServer() {
       stdio: ["inherit", "pipe", "pipe"],
       env: {
         ...process.env,
-        WT_CONFIG_PATH: mediaConfig.__path,
+        BV_CONFIG_PATH: mediaConfig.__path,
         // Force colors to be enabled in the child process
         FORCE_COLOR: "1",
       },

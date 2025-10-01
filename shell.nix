@@ -1,5 +1,5 @@
 # shell.nix
-# This file defines a reproducible development and testing environment for the watchtower project.
+# This file defines a reproducible development and testing environment.
 # To be run with `nix-shell --pure`
 
 { pkgs ? import <nixpkgs> {} }:
@@ -33,7 +33,7 @@ pkgs.mkShell {
 
     # Add a friendly message so the user knows the environment is ready.
     echo ""
-    echo "✅ Watchtower test environment is ready."
+    echo "✅ Test environment is ready."
     echo "   NPM global packages will be installed in a temporary directory: $NPM_GLOBAL_DIR"
     echo "   Runtime library path has been configured for missing dependencies."
     echo ""

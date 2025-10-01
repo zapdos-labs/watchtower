@@ -8,7 +8,7 @@ export type ConfigViewItem = {
   streams: string[];
 };
 
-export type WatchtowerConfig = {
+export type AppConfig = {
   port: number;
   media_server: {
     port: number;
@@ -48,7 +48,7 @@ function getConfigPath(opts?: GetConfigOpts) {
   }
 
   if (from_env) {
-    configPath = configPath || process.env.WT_CONFIG_PATH;
+    configPath = configPath || process.env.BV_CONFIG_PATH;
   }
 
   if (configPath) {
@@ -77,14 +77,14 @@ function readConfigFile(configPath: string) {
 
 export function getConfig(opts?: GetConfigOpts) {
   const configPath = getConfigPath(opts);
-  const config: WatchtowerConfig = configPath ? readConfigFile(configPath) : {};
+  const config: AppConfig = configPath ? readConfigFile(configPath) : {};
 
-  if (!config.port) config.port = parseInt(process.env.WT_PORT || "3000");
+  if (!config.port) config.port = parseInt(process.env.BV_PORT || "3000");
   // @ts-ignore
   if (!config.media_server) config.media_server = {};
   if (!config.media_server.port)
     config.media_server.port = parseInt(
-      process.env.WT_MEDIA_SERVER_PORT || "8080"
+      process.env.BV_MEDIA_SERVER_PORT || "8080"
     );
   if (!config.streams) config.streams = {};
   config.__path = configPath;
@@ -92,7 +92,7 @@ export function getConfig(opts?: GetConfigOpts) {
   return config;
 }
 
-// Only get config from env var WT_CONFIG_PATH
+// Only get config from env var BV_CONFIG_PATH
 // This would be passed when spawning vite process
 export const viteProcessConfig = getConfig({
   from_flags: false,
